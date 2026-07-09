@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AduanaBilling - Panel de Control</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome v6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        customNavy: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        electricBlue: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        emeraldCustom: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Smooth transitions */
+        .transition-all-ease {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="h-full font-sans antialiased text-slate-800 flex flex-col md:flex-row overflow-hidden">
+
+    <!-- SIDEBAR (MENÚ LATERAL) -->
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="mobile-sidebar-backdrop" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden md:hidden transition-all-ease"></div>
+
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-customNavy-950 border-r border-customNavy-900 text-slate-300 transform -translate-x-full md:translate-x-0 md:relative md:flex transition-all-ease">
+        <!-- Logo / Brand Header -->
+        <div class="flex h-16 shrink-0 items-center justify-between px-6 border-b border-customNavy-900">
+            <div class="flex items-center gap-3">
+                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-tr from-electricBlue-600 to-emeraldCustom-500 text-white shadow-md shadow-blue-500/20">
+                    <i class="fa-solid fa-anchor text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-tight leading-none">Aduana<span class="text-electricBlue-500">Billing</span></h1>
+                    <span class="text-[10px] text-slate-400 font-medium tracking-wider uppercase">Agencia de Aduanas</span>
+                </div>
+            </div>
+            <!-- Close mobile sidebar button -->
+            <button id="close-sidebar-btn" class="p-1.5 rounded-lg bg-customNavy-900 text-slate-400 hover:text-white md:hidden transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 space-y-1.5 px-4 py-6 overflow-y-auto">
+            <!-- Section Header -->
+            <div class="px-3 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Operaciones</div>
+            
+            <a href="#" class="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-electricBlue-600/15 to-electricBlue-600/5 text-white border-l-2 border-electricBlue-500 transition-all-ease group">
+                <i class="fa-solid fa-chart-pie text-electricBlue-500 group-hover:scale-110 transition-transform"></i>
+                <span>Resumen</span>
+            </a>
+
+            <a href="#" class="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-customNavy-900 hover:text-white border-l-2 border-transparent hover:border-slate-700 transition-all-ease group">
+                <i class="fa-solid fa-file-invoice text-slate-400 group-hover:text-white group-hover:scale-110 transition-transform"></i>
+                <div class="flex-1 flex items-center justify-between">
+                    <span>Expedientes (DUA/BL)</span>
+                    <span class="bg-blue-950 text-blue-400 text-xs px-2 py-0.5 rounded-full font-bold">148</span>
+                </div>
+            </a>
+
+            <a href="#" class="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-customNavy-900 hover:text-white border-l-2 border-transparent hover:border-slate-700 transition-all-ease group">
+                <i class="fa-solid fa-receipt text-slate-400 group-hover:text-white group-hover:scale-110 transition-transform"></i>
+                <div class="flex-1 flex items-center justify-between">
+                    <span>Facturación</span>
+                    <span class="bg-emerald-950 text-emerald-400 text-xs px-2 py-0.5 rounded-full font-bold">24</span>
+                </div>
+            </a>
+
+            <!-- Section Header -->
+            <div class="px-3 mt-6 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Gestión</div>
+
+            <a href="#" class="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-customNavy-900 hover:text-white border-l-2 border-transparent hover:border-slate-700 transition-all-ease group">
+                <i class="fa-solid fa-folder-open text-slate-400 group-hover:text-white group-hover:scale-110 transition-transform"></i>
+                <span>Catálogo de Servicios</span>
+            </a>
+
+            <a href="#" class="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-customNavy-900 hover:text-white border-l-2 border-transparent hover:border-slate-700 transition-all-ease group">
+                <i class="fa-solid fa-sliders text-slate-400 group-hover:text-white group-hover:scale-110 transition-transform"></i>
+                <span>Configuración</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer / User Quick Info -->
+        <div class="p-4 border-t border-customNavy-900 bg-customNavy-950/50">
+            <div class="flex items-center gap-3 p-2 rounded-lg bg-customNavy-900/40">
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80" alt="Avatar" class="h-10 w-10 rounded-full object-cover border border-slate-700">
+                    <div class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emeraldCustom-500 ring-2 ring-customNavy-950"></div>
+                </div>
+                <div class="overflow-hidden">
+                    <h4 class="text-xs font-semibold text-white truncate">Lic. Alejandro Ruiz</h4>
+                    <p class="text-[10px] text-slate-400 truncate">Agente de Aduanas</p>
+                </div>
+                <a href="#" class="ml-auto p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-customNavy-900 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- WRAPPER PRINCIPAL (CONTENT AREA) -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto h-full">
+
+        <!-- TOP NAVBAR -->
+        <header class="sticky top-0 z-30 flex h-16 w-full shrink-0 items-center justify-between border-b border-slate-200 bg-white/85 backdrop-blur-md px-6 shadow-sm">
+            <!-- Mobile Toggle Button -->
+            <div class="flex items-center gap-4">
+                <button id="open-sidebar-btn" class="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 md:hidden transition-colors">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+
+                <!-- Search Bar -->
+                <div class="hidden sm:flex items-center relative w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-sm"></i>
+                    <input type="text" placeholder="Buscar expedientes, facturas..." class="w-full pl-9 pr-4 py-1.5 text-sm rounded-lg border border-slate-200 bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:border-electricBlue-500 focus:bg-white transition-all-ease">
+                </div>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center gap-4">
+                
+                <!-- Tasa de Cambio del Día (Exchange Rate) -->
+                <div class="relative">
+                    <button id="exchange-rate-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-electricBlue-700 hover:bg-blue-100 transition-all-ease text-xs font-semibold shadow-xs">
+                        <i class="fa-solid fa-dollar-sign animate-pulse"></i>
+                        <span>TRM Hoy: $4,120.50 COP</span>
+                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    </button>
+                    <!-- Exchange Rate Popup / Calculator -->
+                    <div id="exchange-rate-dropdown" class="absolute right-0 mt-2 w-64 rounded-xl border border-slate-100 bg-white p-4 shadow-lg ring-1 ring-slate-900/5 hidden transition-all-ease z-50">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                            <h5 class="text-xs font-bold text-slate-900 uppercase">Tasa de Cambio Aduanera</h5>
+                            <span class="text-[10px] text-slate-400">Oficial DIAN</span>
+                        </div>
+                        <div class="space-y-2.5">
+                            <div class="flex justify-between items-center text-xs text-slate-600">
+                                <span>1 USD</span>
+                                <span class="font-bold text-slate-900">$4,120.50 COP</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs text-slate-600 border-b border-slate-100 pb-2">
+                                <span>1 EUR</span>
+                                <span class="font-bold text-slate-900">$4,485.10 COP</span>
+                            </div>
+                            <!-- Small Quick Converter -->
+                            <div class="pt-1">
+                                <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Calculadora Rápida</label>
+                                <div class="flex gap-2">
+                                    <div class="relative flex-1">
+                                        <input id="calc-usd" type="number" placeholder="USD" class="w-full pl-5 pr-2 py-1 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-electricBlue-500">
+                                        <span class="absolute left-1.5 top-1 text-slate-400 text-xs">$</span>
+                                    </div>
+                                    <div class="flex items-center text-slate-400">
+                                        <i class="fa-solid fa-arrow-right-long text-[10px]"></i>
+                                    </div>
+                                    <div class="relative flex-1">
+                                        <input id="calc-cop" type="text" readonly placeholder="COP" class="w-full px-2 py-1 text-xs border border-slate-200 rounded-md bg-slate-50 font-semibold text-slate-700">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="relative">
+                    <button id="notifications-btn" class="relative p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+                        <i class="fa-regular fa-bell text-xl"></i>
+                        <span class="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white"></span>
+                    </button>
+                    <!-- Notifications Dropdown -->
+                    <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 rounded-xl border border-slate-100 bg-white py-2 shadow-lg ring-1 ring-slate-900/5 hidden z-50">
+                        <div class="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-900 uppercase">Notificaciones</span>
+                            <a href="#" class="text-[10px] text-electricBlue-600 hover:underline">Marcar leídas</a>
+                        </div>
+                        <div class="max-h-64 overflow-y-auto">
+                            <a href="#" class="flex gap-3 px-4 py-3 hover:bg-slate-50 border-b border-slate-50 transition-colors">
+                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+                                    <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+                                </div>
+                                <div class="text-xs">
+                                    <p class="font-medium text-slate-900">Vencimiento de DUA-2026-8841</p>
+                                    <p class="text-slate-400 mt-0.5">El plazo vence en 24 horas.</p>
+                                </div>
+                            </a>
+                            <a href="#" class="flex gap-3 px-4 py-3 hover:bg-slate-50 border-b border-slate-50 transition-colors">
+                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emeraldCustom-600">
+                                    <i class="fa-solid fa-receipt text-xs"></i>
+                                </div>
+                                <div class="text-xs">
+                                    <p class="font-medium text-slate-900">Factura FAC-2026-0482 Pagada</p>
+                                    <p class="text-slate-400 mt-0.5">Monto de $4,250.00 USD abonado por Importadora Global.</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Menu Profile -->
+                <div class="relative">
+                    <button id="user-menu-btn" class="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-colors">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80" alt="Avatar" class="h-8 w-8 rounded-full object-cover">
+                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs hidden sm:inline mr-1"></i>
+                    </button>
+                    <!-- User Dropdown Menu -->
+                    <div id="user-menu-dropdown" class="absolute right-0 mt-2 w-48 rounded-xl border border-slate-100 bg-white py-1 shadow-lg ring-1 ring-slate-900/5 hidden z-50">
+                        <div class="px-4 py-2 border-b border-slate-100">
+                            <p class="text-xs font-semibold text-slate-900">Alejandro Ruiz</p>
+                            <p class="text-[10px] text-slate-400">alejandro.ruiz@aduana.com</p>
+                        </div>
+                        <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">
+                            <i class="fa-regular fa-user text-slate-400"></i> Mi Perfil
+                        </a>
+                        <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">
+                            <i class="fa-solid fa-gears text-slate-400"></i> Ajustes
+                        </a>
+                        <hr class="border-slate-100 my-1">
+                        <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50">
+                            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </header>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="flex-1 p-6 space-y-6 max-w-7xl w-full mx-auto">
+            
+            <!-- Welcome Header & Live Feed Info -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Resumen Operativo</h2>
+                    <p class="text-sm text-slate-500 mt-1">Monitoreo de expedientes, importaciones y facturación en tiempo real.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emeraldCustom-700 text-xs font-semibold">
+                        <span class="h-2 w-2 rounded-full bg-emeraldCustom-500 animate-ping"></span>
+                        Aduana API: Conectado
+                    </span>
+                    <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-xs text-slate-600 transition-colors">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- GRID DE TARJETAS DE MÉTRICAS (GRID CSS) -->
+            <section class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                
+                <!-- Card: Facturas Pendientes -->
+                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow-ease duration-300">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Facturas Pendientes</span>
+                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline gap-2">
+                        <span class="text-3xl font-bold text-slate-900">24</span>
+                        <span class="text-xs font-medium text-rose-600 bg-rose-50 px-2 py-0.5 rounded">Alta Prioridad</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
+                        <span>Monto Acumulado</span>
+                        <span class="font-bold text-slate-800">$182,450 USD</span>
+                    </div>
+                </div>
+
+                <!-- Card: Expedientes Activos -->
+                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow-ease duration-300">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Expedientes Activos</span>
+                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-electricBlue-600">
+                            <i class="fa-solid fa-file-contract"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline gap-2">
+                        <span class="text-3xl font-bold text-slate-900">148</span>
+                        <span class="text-xs font-medium text-emeraldCustom-600 bg-emerald-50 px-2 py-0.5 rounded">+12.4% este mes</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
+                        <span>Aduana / DUA</span>
+                        <span class="font-medium text-slate-800">105 Importación | 43 Exportación</span>
+                    </div>
+                </div>
+
+                <!-- Card: Facturado este Mes -->
+                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow-ease duration-300">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Facturado este Mes</span>
+                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emeraldCustom-600">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline gap-2">
+                        <span class="text-3xl font-bold text-slate-900">$945,800</span>
+                        <span class="text-xs text-slate-500 font-bold">USD</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
+                        <span>Meta Mensual (85%)</span>
+                        <div class="w-24 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                            <div class="bg-emeraldCustom-500 h-1.5 rounded-full" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card: Vencimientos Críticos -->
+                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow-ease duration-300">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Vencimientos Críticos</span>
+                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+                            <i class="fa-solid fa-bell-slash"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-baseline gap-2">
+                        <span class="text-3xl font-bold text-slate-900">7</span>
+                        <span class="text-xs font-medium text-rose-600 bg-rose-50 px-2 py-0.5 rounded">Expedientes DUA</span>
+                    </div>
+                    <div class="mt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
+                        <span>Requieren Acción</span>
+                        <span class="font-bold text-rose-600">¡Atención Hoy!</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN CENTRAL DE DATOS (TABLA + ACCIONES RÁPIDAS) -->
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- TABLA DE ÚLTIMAS FACTURAS EMITIDAS (2 Columnas en pantallas grandes) -->
+                <div class="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden flex flex-col">
+                    <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">Últimas Facturas Emitidas</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Historial reciente de cobros por servicios aduaneros y aranceles.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <select class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500">
+                                <option>Todos los Estados</option>
+                                <option>Pagadas</option>
+                                <option>Pendientes</option>
+                                <option>Anuladas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Table Wrapper -->
+                    <div class="flex-1 overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/75 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                    <th class="px-6 py-3.5">N° Factura</th>
+                                    <th class="px-6 py-3.5">Cliente</th>
+                                    <th class="px-6 py-3.5">Expediente (DUA)</th>
+                                    <th class="px-6 py-3.5">Monto (USD)</th>
+                                    <th class="px-6 py-3.5">Estado</th>
+                                    <th class="px-6 py-3.5 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                                <!-- Fila 1 -->
+                                <tr class="hover:bg-slate-50/80 transition-colors">
+                                    <td class="px-6 py-4 font-semibold text-slate-900">FAC-2026-0482</td>
+                                    <td class="px-6 py-4">Importadora Global S.A.</td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-mono text-xs text-slate-500">DUA-2026-8841</span>
+                                            <span class="inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 font-semibold text-slate-800">$4,250.00</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emeraldCustom-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emeraldCustom-500"></span>
+                                            Pagado
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <button class="p-1.5 text-slate-400 hover:text-electricBlue-600 rounded hover:bg-slate-100 transition-all" title="Ver Detalle">
+                                                <i class="fa-regular fa-eye"></i>
+                                            </button>
+                                            <button class="p-1.5 text-slate-400 hover:text-emeraldCustom-600 rounded hover:bg-slate-100 transition-all" title="Descargar PDF">
+                                                <i class="fa-regular fa-file-pdf"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Fila 2 -->
+                                <tr class="hover:bg-slate-50/80 transition-colors">
+                                    <td class="px-6 py-4 font-semibold text-slate-900">FAC-2026-0481</td>
+                                    <td class="px-6 py-4">Logística Intercontinental</td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-mono text-xs text-slate-500">DUA-2026-8835</span>
+                                            <span class="inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 font-semibold text-slate-800">$8,740.00</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                            Pendiente
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <button class="p-1.5 text-slate-400 hover:text-electricBlue-600 rounded hover:bg-slate-100 transition-all" title="Ver Detalle">
+                                                <i class="fa-regular fa-eye"></i>
+                                            </button>
+                                            <button class="p-1.5 text-slate-400 hover:text-emeraldCustom-600 rounded hover:bg-slate-100 transition-all" title="Descargar PDF">
+                                                <i class="fa-regular fa-file-pdf"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Fila 3 -->
+                                <tr class="hover:bg-slate-50/80 transition-colors">
+                                    <td class="px-6 py-4 font-semibold text-slate-900">FAC-2026-0480</td>
+                                    <td class="px-6 py-4">Textiles Andinos Ltda.</td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-mono text-xs text-slate-500">DUA-2026-8812</span>
+                                            <span class="inline-flex h-2 w-2 rounded-full bg-orange-500"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 font-semibold text-slate-800">$1,920.00</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emeraldCustom-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emeraldCustom-500"></span>
+                                            Pagado
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <button class="p-1.5 text-slate-400 hover:text-electricBlue-600 rounded hover:bg-slate-100 transition-all" title="Ver Detalle">
+                                                <i class="fa-regular fa-eye"></i>
+                                            </button>
+                                            <button class="p-1.5 text-slate-400 hover:text-emeraldCustom-600 rounded hover:bg-slate-100 transition-all" title="Descargar PDF">
+                                                <i class="fa-regular fa-file-pdf"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Fila 4 -->
+                                <tr class="hover:bg-slate-50/80 transition-colors">
+                                    <td class="px-6 py-4 font-semibold text-slate-900">FAC-2026-0479</td>
+                                    <td class="px-6 py-4">Distribuidora Automotriz Sur</td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-mono text-xs text-slate-500">DUA-2026-8799</span>
+                                            <span class="inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 font-semibold text-slate-800">$12,350.00</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                                            Anulado
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <button class="p-1.5 text-slate-400 hover:text-electricBlue-600 rounded hover:bg-slate-100 transition-all cursor-not-allowed" disabled>
+                                                <i class="fa-regular fa-eye-slash"></i>
+                                            </button>
+                                            <button class="p-1.5 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100 transition-all cursor-not-allowed" disabled>
+                                                <i class="fa-solid fa-ban"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer Table -->
+                    <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-xs bg-slate-50/50">
+                        <span class="text-slate-500">Mostrando 4 de 24 facturas</span>
+                        <a href="#" class="font-semibold text-electricBlue-600 hover:text-electricBlue-700 hover:underline flex items-center gap-1.5">
+                            Ver todo el historial
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ACCIONES RÁPIDAS Y WIDGETS (1 Columna en pantallas grandes) -->
+                <div class="space-y-6">
+                    
+                    <!-- Tarjeta: Accesos Rápidos (Acciones) -->
+                    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
+                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-amber-500"></i>
+                            Acciones Operativas
+                        </h3>
+                        <div class="space-y-3">
+                            <button id="new-invoice-btn" class="w-full flex items-center justify-between p-3 rounded-lg border border-emeraldCustom-100 bg-emerald-50/30 hover:bg-emerald-50 text-emeraldCustom-700 text-sm font-semibold hover:border-emeraldCustom-200 hover:shadow-xs transition-all-ease">
+                                <span class="flex items-center gap-2.5">
+                                    <i class="fa-solid fa-file-circle-plus text-base"></i>
+                                    Nueva Factura
+                                </span>
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+
+                            <button id="new-file-btn" class="w-full flex items-center justify-between p-3 rounded-lg border border-blue-100 bg-blue-50/30 hover:bg-blue-50 text-electricBlue-700 text-sm font-semibold hover:border-blue-200 hover:shadow-xs transition-all-ease">
+                                <span class="flex items-center gap-2.5">
+                                    <i class="fa-solid fa-folder-plus text-base"></i>
+                                    Crear Expediente (DUA)
+                                </span>
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+
+                            <a href="https://arancel.dian.gov.co" target="_blank" class="w-full flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 text-slate-700 text-sm font-semibold hover:border-slate-200 transition-all-ease">
+                                <span class="flex items-center gap-2.5">
+                                    <i class="fa-solid fa-book-atlas text-base text-slate-500"></i>
+                                    Consultar Aranceles
+                                </span>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta: Estado del Ecosistema de Puertos / Aduana -->
+                    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
+                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-network-wired text-electricBlue-500"></i>
+                            Conexión de Aduanas
+                        </h3>
+                        <div class="space-y-3.5">
+                            <!-- DIAN status -->
+                            <div class="flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-2">
+                                    <span class="h-2 w-2 rounded-full bg-emeraldCustom-500"></span>
+                                    <span class="font-medium text-slate-700">Sistema Arancelario (DIAN)</span>
+                                </div>
+                                <span class="text-slate-400 font-mono">15ms</span>
+                            </div>
+                            <!-- Puerto status -->
+                            <div class="flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-2">
+                                    <span class="h-2 w-2 rounded-full bg-emeraldCustom-500"></span>
+                                    <span class="font-medium text-slate-700">Terminal Marítimo (Puerto)</span>
+                                </div>
+                                <span class="text-slate-400 font-mono">42ms</span>
+                            </div>
+                            <!-- VUCE status -->
+                            <div class="flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-2">
+                                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                                    <span class="font-medium text-slate-700">Ventanilla Única (VUCE)</span>
+                                </div>
+                                <span class="text-amber-600 bg-amber-50 px-2 py-0.5 rounded text-[10px] font-bold">Inestable</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODALES INTERACTIVOS (NUEVA FACTURA) -->
+    <div id="new-invoice-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"></div>
+        <!-- Modal Content Container -->
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-100">
+                <div class="bg-white px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-file-invoice-dollar text-emeraldCustom-600"></i>
+                        Generar Nueva Factura
+                    </h3>
+                    <button id="close-invoice-modal-btn" class="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                
+                <form id="new-invoice-form">
+                    <div class="px-6 py-5 space-y-4">
+                        <!-- Cliente -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cliente / Importador</label>
+                            <select required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500 bg-white">
+                                <option value="">Seleccione un cliente...</option>
+                                <option>Importadora Global S.A.</option>
+                                <option>Logística Intercontinental</option>
+                                <option>Textiles Andinos Ltda.</option>
+                                <option>Distribuidora Automotriz Sur</option>
+                            </select>
+                        </div>
+                        <!-- Expediente DUA -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Código de Expediente (DUA)</label>
+                            <input type="text" required placeholder="Ej: DUA-2026-8950" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500">
+                        </div>
+                        <!-- Valor & Divisa -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Monto Cobro</label>
+                                <div class="relative">
+                                    <input type="number" required step="0.01" placeholder="0.00" class="w-full pl-7 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500">
+                                    <span class="absolute left-3 top-2.5 text-slate-400 text-sm">$</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Divisa</label>
+                                <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500 bg-white">
+                                    <option>USD - Dólar Americano</option>
+                                    <option>COP - Peso Colombiano</option>
+                                    <option>EUR - Euro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Concepto del Servicio -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Concepto Facturado</label>
+                            <textarea required rows="3" placeholder="Detalle de los servicios de aduana prestados..." class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-50 px-6 py-4 flex flex-row-reverse gap-3 rounded-b-xl border-t border-slate-100">
+                        <button type="submit" class="inline-flex justify-center rounded-lg bg-emeraldCustom-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-emeraldCustom-700 focus:outline-none transition-colors">
+                            Crear Factura
+                        </button>
+                        <button id="cancel-invoice-btn" type="button" class="inline-flex justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none transition-colors">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALES INTERACTIVOS (NUEVO EXPEDIENTE) -->
+    <div id="new-file-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"></div>
+        <!-- Modal Content Container -->
+        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-100">
+                <div class="bg-white px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-folder-open text-electricBlue-600"></i>
+                        Apertura de Expediente DUA/BL
+                    </h3>
+                    <button id="close-file-modal-btn" class="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                
+                <form id="new-file-form">
+                    <div class="px-6 py-5 space-y-4">
+                        <!-- Importador / Exportador -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Importador / Exportador</label>
+                            <input type="text" required placeholder="Nombre de la empresa cliente" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500">
+                        </div>
+                        <!-- Tipo de Operacion -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Operación</label>
+                                <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500 bg-white">
+                                    <option>Importación</option>
+                                    <option>Exportación</option>
+                                    <option>Tránsito Aduanero</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Vía de Transporte</label>
+                                <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500 bg-white">
+                                    <option>Marítima (BL)</option>
+                                    <option>Aérea (AWB)</option>
+                                    <option>Terrestre (Carta Porte)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Numero Documento de Transporte -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">N° Documento de Transporte (BL / AWB)</label>
+                            <input type="text" required placeholder="Ej: MSKU90823528" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500">
+                        </div>
+                        <!-- Descripcion de Mercancia -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Descripción General de la Mercancía</label>
+                            <textarea required rows="3" placeholder="Detalle de productos, partidas arancelarias..." class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-50 px-6 py-4 flex flex-row-reverse gap-3 rounded-b-xl border-t border-slate-100">
+                        <button type="submit" class="inline-flex justify-center rounded-lg bg-electricBlue-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-electricBlue-700 focus:outline-none transition-colors">
+                            Abrir Expediente
+                        </button>
+                        <button id="cancel-file-btn" type="button" class="inline-flex justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none transition-colors">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT INTERACTIVO -->
+    <script>
+        // DOM Elements
+        const openSidebarBtn = document.getElementById('open-sidebar-btn');
+        const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileSidebarBackdrop = document.getElementById('mobile-sidebar-backdrop');
+
+        const exchangeRateBtn = document.getElementById('exchange-rate-btn');
+        const exchangeRateDropdown = document.getElementById('exchange-rate-dropdown');
+        const calcUsd = document.getElementById('calc-usd');
+        const calcCop = document.getElementById('calc-cop');
+
+        const notificationsBtn = document.getElementById('notifications-btn');
+        const notificationsDropdown = document.getElementById('notifications-dropdown');
+
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+
+        // Modales
+        const newInvoiceBtn = document.getElementById('new-invoice-btn');
+        const newInvoiceModal = document.getElementById('new-invoice-modal');
+        const closeInvoiceModalBtn = document.getElementById('close-invoice-modal-btn');
+        const cancelInvoiceBtn = document.getElementById('cancel-invoice-btn');
+        const newInvoiceForm = document.getElementById('new-invoice-form');
+
+        const newFileBtn = document.getElementById('new-file-btn');
+        const newFileModal = document.getElementById('new-file-modal');
+        const closeFileModalBtn = document.getElementById('close-file-modal-btn');
+        const cancelFileBtn = document.getElementById('cancel-file-btn');
+        const newFileForm = document.getElementById('new-file-form');
+
+        // Sidebar Responsive Toggle
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            mobileSidebarBackdrop.classList.remove('hidden');
+        }
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            mobileSidebarBackdrop.classList.add('hidden');
+        }
+        openSidebarBtn.addEventListener('click', openSidebar);
+        closeSidebarBtn.addEventListener('click', closeSidebar);
+        mobileSidebarBackdrop.addEventListener('click', closeSidebar);
+
+        // Close dropdowns helper
+        window.addEventListener('click', function(e) {
+            // Exchange rate dropdown
+            if (!exchangeRateBtn.contains(e.target) && !exchangeRateDropdown.contains(e.target)) {
+                exchangeRateDropdown.classList.add('hidden');
+            }
+            // Notifications dropdown
+            if (!notificationsBtn.contains(e.target) && !notificationsDropdown.contains(e.target)) {
+                notificationsDropdown.classList.add('hidden');
+            }
+            // User menu dropdown
+            if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                userMenuDropdown.classList.add('hidden');
+            }
+        });
+
+        // Exchange Rate Dropdown Toggle
+        exchangeRateBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            exchangeRateDropdown.classList.toggle('hidden');
+            notificationsDropdown.classList.add('hidden');
+            userMenuDropdown.classList.add('hidden');
+        });
+
+        // Exchange Rate Quick Calculator (TRM = 4120.50)
+        const exchangeRateVal = 4120.50;
+        calcUsd.addEventListener('input', function() {
+            const usdVal = parseFloat(calcUsd.value);
+            if (isNaN(usdVal) || usdVal < 0) {
+                calcCop.value = '';
+            } else {
+                const converted = usdVal * exchangeRateVal;
+                calcCop.value = '$ ' + converted.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' COP';
+            }
+        });
+
+        // Notifications Toggle
+        notificationsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationsDropdown.classList.toggle('hidden');
+            exchangeRateDropdown.classList.add('hidden');
+            userMenuDropdown.classList.add('hidden');
+        });
+
+        // User Menu Toggle
+        userMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('hidden');
+            exchangeRateDropdown.classList.add('hidden');
+            notificationsDropdown.classList.add('hidden');
+        });
+
+        // MODAL NUEVA FACTURA
+        newInvoiceBtn.addEventListener('click', () => {
+            newInvoiceModal.classList.remove('hidden');
+        });
+        function hideInvoiceModal() {
+            newInvoiceModal.classList.add('hidden');
+            newInvoiceForm.reset();
+        }
+        closeInvoiceModalBtn.addEventListener('click', hideInvoiceModal);
+        cancelInvoiceBtn.addEventListener('click', hideInvoiceModal);
+        newInvoiceForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('¡Factura guardada exitosamente (Simulación)!');
+            hideInvoiceModal();
+        });
+
+        // MODAL NUEVO EXPEDIENTE
+        newFileBtn.addEventListener('click', () => {
+            newFileModal.classList.remove('hidden');
+        });
+        function hideFileModal() {
+            newFileModal.classList.add('hidden');
+            newFileForm.reset();
+        }
+        closeFileModalBtn.addEventListener('click', hideFileModal);
+        cancelFileBtn.addEventListener('click', hideFileModal);
+        newFileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('¡Expediente de aduana DUA registrado con éxito (Simulación)!');
+            hideFileModal();
+        });
+    </script>
+</body>
+</html>
