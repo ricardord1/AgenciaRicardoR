@@ -1,884 +1,2667 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-50">
+<html lang="es" id="app-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AduanaBilling - Panel de Control</title>
-    <!-- Google Fonts: Inter -->
+    <meta name="description" content="AduanaBilling — Panel de control para gestión de facturación y expedientes de agencia de aduanas. Importación, exportación, DUA, NCF.">
+    <title>AduanaBilling — Panel de Control</title>
+
+    <!-- Google Fonts: Inter (Variable) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- FontAwesome v6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        customNavy: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                            950: '#020617',
-                        },
-                        electricBlue: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                        },
-                        emeraldCustom: {
-                            50: '#ecfdf5',
-                            100: '#d1fae5',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
-        /* Smooth transitions */
-        .transition-all-ease {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        /* ================================================================
+           SISTEMA DE TOKENS DE DISEÑO — AduanaBilling
+           Paleta: Navy-950 base oscura, Electric-Blue acento primario,
+           Emerald éxito, Amber advertencia, Rose error.
+           Dark Mode: controlado por clase .dark en <html>
+           ================================================================ */
+        :root {
+            /* Escala de colores Navy (sidebar / dark surfaces) */
+            --navy-950: #020617;
+            --navy-900: #0f172a;
+            --navy-800: #1e293b;
+            --navy-700: #334155;
+
+            /* Paleta de superficie (modo claro) */
+            --surface-bg:      #f1f5f9;
+            --surface-card:    #ffffff;
+            --surface-border:  #e2e8f0;
+            --surface-input:   #f8fafc;
+            --surface-hover:   #f8fafc;
+
+            /* Tipografía (modo claro) */
+            --text-primary:    #0f172a;
+            --text-secondary:  #475569;
+            --text-muted:      #94a3b8;
+            --text-inverse:    #ffffff;
+
+            /* Acento Primario */
+            --blue-50:  #eff6ff;
+            --blue-100: #dbeafe;
+            --blue-500: #3b82f6;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+
+            /* Éxito */
+            --green-50:  #ecfdf5;
+            --green-100: #d1fae5;
+            --green-500: #10b981;
+            --green-600: #059669;
+            --green-700: #047857;
+
+            /* Advertencia */
+            --amber-50:  #fffbeb;
+            --amber-100: #fef3c7;
+            --amber-500: #f59e0b;
+            --amber-600: #d97706;
+
+            /* Error / Peligro */
+            --rose-50:  #fff1f2;
+            --rose-100: #ffe4e6;
+            --rose-500: #f43f5e;
+            --rose-600: #e11d48;
+
+            /* Sombras */
+            --shadow-xs:  0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-sm:  0 1px 3px 0 rgb(0 0 0 / 0.10), 0 1px 2px -1px rgb(0 0 0 / 0.10);
+            --shadow-md:  0 4px 6px -1px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.10);
+            --shadow-lg:  0 10px 15px -3px rgb(0 0 0 / 0.10), 0 4px 6px -4px rgb(0 0 0 / 0.10);
+            --shadow-xl:  0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.10);
+            --shadow-glow-blue: 0 0 0 3px rgba(37,99,235,0.15);
+
+            /* Radios */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            --radius-full: 9999px;
+
+            /* Transiciones */
+            --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Sidebar */
+            --sidebar-width: 272px;
         }
-        /* Custom scrollbar for webkit */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+
+        /* ── DARK MODE TOKENS ─────────────────────────────────────── */
+        .dark {
+            --surface-bg:     #0a0f1e;
+            --surface-card:   #111827;
+            --surface-border: #1f2d3d;
+            --surface-input:  #1a2433;
+            --surface-hover:  #1a2433;
+
+            --text-primary:   #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted:     #475569;
+
+            --shadow-xs:  0 1px 2px 0 rgb(0 0 0 / 0.40);
+            --shadow-sm:  0 1px 3px 0 rgb(0 0 0 / 0.40), 0 1px 2px -1px rgb(0 0 0 / 0.40);
+            --shadow-md:  0 4px 6px -1px rgb(0 0 0 / 0.40), 0 2px 4px -2px rgb(0 0 0 / 0.40);
+            --shadow-lg:  0 10px 15px -3px rgb(0 0 0 / 0.50), 0 4px 6px -4px rgb(0 0 0 / 0.40);
+            --shadow-xl:  0 20px 25px -5px rgb(0 0 0 / 0.60), 0 8px 10px -6px rgb(0 0 0 / 0.40);
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
+
+        /* ── RESET & BASE ─────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: var(--surface-bg);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
+
+        /* ── SCROLLBAR ────────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--surface-border); border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* ── LAYOUT ───────────────────────────────────────────────── */
+        .app-shell {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+
+        /* ================================================================
+           SIDEBAR
+           ================================================================ */
+        #sidebar {
+            position: fixed;
+            inset-y: 0;
+            left: 0;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--navy-950) 0%, #060d1e 100%);
+            border-right: 1px solid rgba(255,255,255,0.06);
+            transform: translateX(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        #sidebar::before {
+            content: '';
+            position: absolute;
+            top: -60px; left: -60px;
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .sidebar-mobile-hidden { transform: translateX(-100%) !important; }
+
+        /* Brand */
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            height: 64px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px; height: 36px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--blue-600), var(--green-500));
+            color: white;
+            font-size: 15px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.35);
+            flex-shrink: 0;
+        }
+        .brand-text h1 {
+            font-size: 15px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+        }
+        .brand-text h1 span { color: var(--blue-500); }
+        .brand-text p {
+            font-size: 9px;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 1px;
+        }
+
+        /* Nav */
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .nav-section-label {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #3d5068;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0 10px;
+            margin-bottom: 6px;
+            margin-top: 20px;
+        }
+        .nav-section-label:first-child { margin-top: 0; }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 9px 10px;
+            border-radius: var(--radius-md);
+            color: #64748b;
+            font-size: 13.5px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            position: relative;
+            border: 1px solid transparent;
+            margin-bottom: 2px;
+        }
+        .nav-link:hover {
+            background: rgba(255,255,255,0.05);
+            color: #cbd5e1;
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, rgba(37,99,235,0.18), rgba(37,99,235,0.08));
+            color: #fff;
+            border-color: rgba(59,130,246,0.2);
+        }
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 50%;
+            transform: translateY(-50%);
+            width: 3px; height: 18px;
+            background: var(--blue-500);
+            border-radius: 0 3px 3px 0;
+        }
+        .nav-link i {
+            width: 18px;
+            font-size: 14px;
+            text-align: center;
+            flex-shrink: 0;
+            transition: transform 0.15s ease;
+        }
+        .nav-link:hover i, .nav-link.active i { transform: scale(1.1); }
+        .nav-link.active i { color: var(--blue-500); }
+        .nav-badge {
+            margin-left: auto;
+            padding: 2px 7px;
+            border-radius: var(--radius-full);
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(255,255,255,0.07);
+            color: #64748b;
+        }
+        .nav-badge.blue { background: rgba(59,130,246,0.15); color: var(--blue-500); }
+        .nav-badge.green { background: rgba(16,185,129,0.15); color: var(--green-500); }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: var(--radius-md);
+            background: rgba(255,255,255,0.04);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .sidebar-user:hover { background: rgba(255,255,255,0.07); }
+        .user-avatar-wrap { position: relative; flex-shrink: 0; }
+        .user-avatar {
+            width: 34px; height: 34px;
+            border-radius: var(--radius-full);
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .user-status-dot {
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            background: var(--green-500);
+            border: 2px solid var(--navy-950);
+        }
+        .user-info { flex: 1; min-width: 0; }
+        .user-name {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #e2e8f0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-role {
+            font-size: 10px;
+            color: #475569;
+            margin-top: 1px;
+        }
+        .user-logout {
+            color: #475569;
+            font-size: 13px;
+            padding: 4px;
+            border-radius: 6px;
+            transition: color 0.15s;
+            border: none; background: none; cursor: pointer;
+        }
+        .user-logout:hover { color: var(--rose-500); }
+
+        /* Mobile backdrop */
+        #mobile-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            background: rgba(2, 6, 23, 0.7);
+            backdrop-filter: blur(4px);
+        }
+        #mobile-backdrop.visible { display: block; }
+
+        /* ================================================================
+           MAIN CONTENT AREA
+           ================================================================ */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            margin-left: var(--sidebar-width);
+            height: 100vh;
+            overflow-y: auto;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* ── TOPBAR ───────────────────────────────────────────────── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            padding: 0 24px;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--surface-border);
+            box-shadow: var(--shadow-xs);
+            flex-shrink: 0;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+        .dark .topbar {
+            background: rgba(17, 24, 39, 0.85);
+            border-bottom-color: var(--surface-border);
+        }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+        /* Burger button */
+        .btn-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px; height: 36px;
+            border-radius: var(--radius-md);
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-size: 16px;
+        }
+        .btn-icon:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+        .btn-icon.active { background: var(--surface-hover); color: var(--text-primary); }
+
+        /* Search */
+        .search-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-wrap i {
+            position: absolute;
+            left: 11px;
+            color: var(--text-muted);
+            font-size: 13px;
+            pointer-events: none;
+        }
+        .search-input {
+            padding: 7px 14px 7px 34px;
+            width: 260px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--surface-border);
+            background: var(--surface-input);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition-fast);
+        }
+        .search-input::placeholder { color: var(--text-muted); }
+        .search-input:focus {
+            border-color: var(--blue-500);
+            background: var(--surface-card);
+            box-shadow: var(--shadow-glow-blue);
+        }
+
+        /* TRM Pill */
+        .trm-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: var(--radius-full);
+            background: var(--blue-50);
+            border: 1px solid var(--blue-100);
+            color: var(--blue-700);
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            white-space: nowrap;
+        }
+        .dark .trm-pill {
+            background: rgba(37,99,235,0.1);
+            border-color: rgba(37,99,235,0.2);
+            color: var(--blue-500);
+        }
+        .trm-pill:hover { background: var(--blue-100); }
+        .trm-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue-500); animation: pulse 2s infinite; }
+
+        /* Notification btn */
+        .notif-btn-wrap { position: relative; }
+        .notif-dot {
+            position: absolute;
+            top: 6px; right: 6px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--rose-500);
+            border: 2px solid var(--surface-card);
+            pointer-events: none;
+        }
+        .dark .notif-dot { border-color: rgba(17, 24, 39, 0.85); }
+
+        /* Dark mode toggle */
+        .dark-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px; height: 36px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--surface-border);
+            background: var(--surface-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-size: 14px;
+        }
+        .dark-toggle:hover { color: var(--text-primary); background: var(--surface-hover); }
+
+        /* User avatar in topbar */
+        .topbar-avatar {
+            width: 34px; height: 34px;
+            border-radius: var(--radius-full);
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid var(--surface-border);
+            transition: border-color 0.15s;
+        }
+        .topbar-avatar:hover { border-color: var(--blue-500); }
+
+        /* ── DROPDOWN MENUS ───────────────────────────────────────── */
+        .dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--surface-card);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            z-index: 100;
+            min-width: 200px;
+            overflow: hidden;
+            transform-origin: top right;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .dropdown.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95) translateY(-4px);
+        }
+        .dropdown:not(.hidden) {
+            opacity: 1;
+            pointer-events: all;
+            transform: scale(1) translateY(0);
+        }
+        .dropdown-header {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .dropdown-header h5 {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-primary);
+        }
+        .dropdown-header p {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 14px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+        .dropdown-item:hover { background: var(--surface-hover); color: var(--text-primary); }
+        .dropdown-item.danger { color: var(--rose-600); }
+        .dropdown-item.danger:hover { background: var(--rose-50); }
+        .dark .dropdown-item.danger:hover { background: rgba(244, 63, 94, 0.1); }
+        .dropdown-divider { height: 1px; background: var(--surface-border); margin: 4px 0; }
+
+        /* TRM Dropdown special */
+        .trm-dropdown {
+            width: 280px;
+            padding: 14px;
+        }
+        .trm-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .trm-row:last-of-type { border-bottom: none; }
+        .trm-row strong { color: var(--text-primary); font-weight: 700; }
+        .trm-calc { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--surface-border); }
+        .trm-calc label {
+            display: block;
+            font-size: 9.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .trm-calc-row { display: flex; gap: 8px; align-items: center; }
+        .trm-input {
+            flex: 1;
+            padding: 6px 8px;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            background: var(--surface-input);
+            color: var(--text-primary);
+            font-family: inherit;
+            outline: none;
+        }
+        .trm-input:focus { border-color: var(--blue-500); }
+        .trm-arrow { color: var(--text-muted); font-size: 11px; flex-shrink: 0; }
+
+        /* Notif dropdown */
+        .notif-dropdown { width: 320px; }
+        .notif-list { max-height: 260px; overflow-y: auto; }
+        .notif-item {
+            display: flex;
+            gap: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--surface-border);
+            transition: background 0.15s;
+        }
+        .notif-item:hover { background: var(--surface-hover); }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px; height: 32px;
+            border-radius: var(--radius-full);
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .notif-icon.rose { background: var(--rose-100); color: var(--rose-600); }
+        .notif-icon.green { background: var(--green-100); color: var(--green-600); }
+        .dark .notif-icon.rose { background: rgba(244,63,94,0.15); }
+        .dark .notif-icon.green { background: rgba(16,185,129,0.15); }
+        .notif-body p { font-size: 12px; font-weight: 500; color: var(--text-primary); line-height: 1.3; }
+        .notif-body span { font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px; }
+        .notif-footer {
+            padding: 10px 14px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--blue-600);
+            cursor: pointer;
+            border-top: 1px solid var(--surface-border);
+            transition: background 0.15s;
+        }
+        .notif-footer:hover { background: var(--surface-hover); }
+
+        /* ================================================================
+           MAIN — PAGE CONTENT
+           ================================================================ */
+        .page-main {
+            flex: 1;
+            padding: 24px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Page header */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .page-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.4px;
+        }
+        .page-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+        .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+        /* Status badge (API connected, etc.) */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11.5px;
+            font-weight: 600;
+            background: var(--green-50);
+            color: var(--green-700);
+            border: 1px solid var(--green-100);
+        }
+        .dark .status-badge { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.2); color: var(--green-500); }
+        .status-badge .ping {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--green-500);
+            animation: ping 2s ease infinite;
+        }
+
+        /* Button styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: var(--transition-fast);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn-primary {
+            background: var(--blue-600);
+            color: white;
+            box-shadow: 0 1px 2px rgba(37,99,235,0.3);
+        }
+        .btn-primary:hover { background: var(--blue-700); box-shadow: 0 4px 12px rgba(37,99,235,0.35); transform: translateY(-1px); }
+        .btn-secondary {
+            background: var(--surface-card);
+            color: var(--text-secondary);
+            border-color: var(--surface-border);
+            box-shadow: var(--shadow-xs);
+        }
+        .btn-secondary:hover { background: var(--surface-hover); color: var(--text-primary); }
+        .btn-success {
+            background: var(--green-600);
+            color: white;
+        }
+        .btn-success:hover { background: var(--green-700); transform: translateY(-1px); }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
+        .btn-danger { background: var(--rose-500); color: white; }
+        .btn-danger:hover { background: var(--rose-600); transform: translateY(-1px); }
+
+        /* ── KPI CARDS GRID ───────────────────────────────────────── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background: var(--surface-card);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-lg);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .kpi-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .kpi-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .kpi-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+        }
+        .kpi-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px; height: 38px;
+            border-radius: var(--radius-md);
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        .kpi-icon.amber { background: var(--amber-50); color: var(--amber-600); }
+        .kpi-icon.blue { background: var(--blue-50); color: var(--blue-600); }
+        .kpi-icon.green { background: var(--green-50); color: var(--green-600); }
+        .kpi-icon.rose { background: var(--rose-50); color: var(--rose-600); }
+        .dark .kpi-icon.amber { background: rgba(245,158,11,0.12); }
+        .dark .kpi-icon.blue { background: rgba(59,130,246,0.12); }
+        .dark .kpi-icon.green { background: rgba(16,185,129,0.12); }
+        .dark .kpi-icon.rose { background: rgba(244,63,94,0.12); }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.6px;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .kpi-sub {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 12px;
+            margin-top: 10px;
+            border-top: 1px solid var(--surface-border);
+            font-size: 11.5px;
+            color: var(--text-muted);
+        }
+        .kpi-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            font-size: 10.5px;
+            font-weight: 700;
+        }
+        .kpi-tag.up { background: var(--green-50); color: var(--green-700); }
+        .kpi-tag.down { background: var(--rose-50); color: var(--rose-600); }
+        .kpi-tag.warn { background: var(--amber-50); color: var(--amber-600); }
+        .dark .kpi-tag.up { background: rgba(16,185,129,0.12); color: var(--green-500); }
+        .dark .kpi-tag.down { background: rgba(244,63,94,0.12); color: var(--rose-500); }
+        .dark .kpi-tag.warn { background: rgba(245,158,11,0.12); color: var(--amber-500); }
+
+        /* Progress bar inside kpi */
+        .kpi-progress-bar {
+            width: 60px;
+            height: 4px;
+            background: var(--surface-border);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .kpi-progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: var(--green-500);
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ── CONTENT GRID ─────────────────────────────────────────── */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 1100px) { .content-grid { grid-template-columns: 1fr; } }
+
+        /* ── PANEL / CARD ─────────────────────────────────────────── */
+        .panel {
+            background: var(--surface-card);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--surface-border);
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .panel-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .panel-subtitle {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ── TABLE ────────────────────────────────────────────────── */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table thead tr {
+            background: var(--surface-bg);
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .data-table th {
+            padding: 10px 16px;
+            text-align: left;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .data-table td {
+            padding: 13px 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--surface-border);
+            vertical-align: middle;
+        }
+        .data-table tbody tr { transition: background 0.12s; }
+        .data-table tbody tr:hover { background: var(--surface-hover); }
+        .data-table tbody tr:last-child td { border-bottom: none; }
+
+        /* Invoice number cell */
+        .inv-number {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 12.5px;
+        }
+        .dua-code {
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--surface-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--surface-border);
+        }
+
+        /* Status badges */
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .status-chip::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .status-chip.pagada { background: var(--green-50); color: var(--green-700); }
+        .status-chip.pagada::before { background: var(--green-500); }
+        .status-chip.pendiente { background: var(--amber-50); color: var(--amber-600); }
+        .status-chip.pendiente::before { background: var(--amber-500); animation: pulse 2s infinite; }
+        .status-chip.anulada { background: var(--rose-50); color: var(--rose-600); }
+        .status-chip.anulada::before { background: var(--rose-500); }
+        .dark .status-chip.pagada { background: rgba(16,185,129,0.12); color: var(--green-500); }
+        .dark .status-chip.pendiente { background: rgba(245,158,11,0.12); color: var(--amber-500); }
+        .dark .status-chip.anulada { background: rgba(244,63,94,0.12); color: var(--rose-500); }
+
+        /* Row actions */
+        .row-actions { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px; height: 30px;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            font-size: 13px;
+        }
+        .action-btn:hover { background: var(--surface-hover); }
+        .action-btn.blue:hover { background: var(--blue-50); color: var(--blue-600); }
+        .action-btn.green:hover { background: var(--green-50); color: var(--green-600); }
+        .action-btn.rose:hover { background: var(--rose-50); color: var(--rose-600); }
+        .dark .action-btn.blue:hover { background: rgba(59,130,246,0.1); }
+        .dark .action-btn.green:hover { background: rgba(16,185,129,0.1); }
+        .dark .action-btn.rose:hover { background: rgba(244,63,94,0.1); }
+        .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .action-btn:disabled:hover { background: transparent; color: var(--text-muted); }
+
+        /* Filter select */
+        .filter-select {
+            padding: 6px 10px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--surface-border);
+            background: var(--surface-input);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .filter-select:focus { border-color: var(--blue-500); }
+
+        /* Table footer */
+        .table-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-top: 1px solid var(--surface-border);
+            background: var(--surface-bg);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .table-footer a {
+            color: var(--blue-600);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: gap 0.15s;
+        }
+        .table-footer a:hover { gap: 8px; }
+
+        /* ── SKELETON LOADERS ─────────────────────────────────────── */
+        .skeleton {
+            background: linear-gradient(90deg,
+                var(--surface-border) 25%,
+                var(--surface-hover) 50%,
+                var(--surface-border) 75%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+        .sk-row td { padding: 13px 16px; }
+        .sk-line { height: 12px; display: inline-block; }
+        .sk-line.w-24 { width: 96px; }
+        .sk-line.w-32 { width: 128px; }
+        .sk-line.w-16 { width: 64px; }
+        .sk-line.w-20 { width: 80px; }
+        .sk-chip { height: 22px; width: 70px; border-radius: 99px; display: inline-block; }
+
+        /* ── QUICK ACTIONS SIDEBAR PANEL ──────────────────────────── */
+        .action-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--surface-border);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            text-decoration: none;
+        }
+        .action-card:hover { box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+        .action-card.green { background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.18); }
+        .action-card.green:hover { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); }
+        .action-card.blue { background: rgba(59,130,246,0.06); border-color: rgba(59,130,246,0.18); }
+        .action-card.blue:hover { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); }
+        .action-card .label { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+        .action-card .sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+        .action-card-icon {
+            width: 34px; height: 34px;
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; flex-shrink: 0;
+        }
+        .action-card.green .action-card-icon { background: rgba(16,185,129,0.12); color: var(--green-600); }
+        .action-card.blue .action-card-icon { background: rgba(59,130,246,0.12); color: var(--blue-600); }
+        .dark .action-card.green .action-card-icon { color: var(--green-500); }
+        .dark .action-card.blue .action-card-icon { color: var(--blue-500); }
+
+        /* Connectivity panel */
+        .conn-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 12.5px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .conn-item:last-child { border-bottom: none; }
+        .conn-label { display: flex; align-items: center; gap: 7px; color: var(--text-secondary); font-weight: 500; }
+        .conn-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .conn-dot.ok { background: var(--green-500); }
+        .conn-dot.warn { background: var(--amber-500); }
+        .conn-dot.down { background: var(--rose-500); }
+        .conn-latency {
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .conn-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: var(--radius-full);
+        }
+        .conn-badge.warn { background: var(--amber-50); color: var(--amber-600); }
+        .dark .conn-badge.warn { background: rgba(245,158,11,0.12); color: var(--amber-500); }
+
+        /* ================================================================
+           MODAL SYSTEM
+           ================================================================ */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 16px 16px;
+            background: rgba(2, 6, 23, 0.65);
+            backdrop-filter: blur(6px);
+            overflow-y: auto;
+            transition: opacity 0.2s ease;
+        }
+        .modal-backdrop.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal-box {
+            background: var(--surface-card);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 560px;
+            margin: auto;
+            transform: scale(1);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-backdrop.hidden .modal-box { transform: scale(0.97); }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .modal-title i {
+            width: 30px; height: 30px;
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px;
+        }
+        .modal-title.green i { background: var(--green-50); color: var(--green-600); }
+        .modal-title.blue i { background: var(--blue-50); color: var(--blue-600); }
+        .dark .modal-title.green i { background: rgba(16,185,129,0.12); color: var(--green-500); }
+        .dark .modal-title.blue i { background: rgba(59,130,246,0.12); color: var(--blue-500); }
+        .modal-close {
+            width: 30px; height: 30px;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: var(--surface-hover);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition-fast);
+        }
+        .modal-close:hover { background: var(--rose-50); color: var(--rose-600); }
+        .dark .modal-close:hover { background: rgba(244,63,94,0.1); color: var(--rose-500); }
+
+        .modal-body { padding: 22px; }
+        .modal-footer {
+            padding: 14px 22px;
+            border-top: 1px solid var(--surface-border);
+            background: var(--surface-bg);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+        }
+
+        /* Form elements */
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .form-label.required::after { content: ' *'; color: var(--rose-500); }
+        .form-control {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--surface-border);
+            background: var(--surface-input);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition-fast);
+        }
+        .form-control:focus { border-color: var(--blue-500); background: var(--surface-card); box-shadow: var(--shadow-glow-blue); }
+        .form-control.has-error { border-color: var(--rose-500); box-shadow: 0 0 0 3px rgba(244,63,94,0.12); }
+        .form-control::placeholder { color: var(--text-muted); }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+        select.form-control { cursor: pointer; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-error { font-size: 11px; color: var(--rose-600); margin-top: 4px; display: none; }
+        .form-control.has-error + .form-error { display: block; }
+        .input-prefix-wrap { position: relative; }
+        .input-prefix { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px; pointer-events: none; }
+        .input-prefix-wrap .form-control { padding-left: 26px; }
+
+        /* Detail lines */
+        .detail-lines { margin-top: 8px; }
+        .detail-line {
+            display: grid;
+            grid-template-columns: 1fr 80px 110px 30px;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+            animation: fadeInUp 0.2s ease;
+        }
+        .remove-detail {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: var(--radius-sm);
+            border: none; background: transparent;
+            color: var(--text-muted); cursor: pointer;
+            transition: var(--transition-fast); font-size: 12px;
+        }
+        .remove-detail:hover { background: var(--rose-50); color: var(--rose-600); }
+        .dark .remove-detail:hover { background: rgba(244,63,94,0.1); color: var(--rose-500); }
+        .detail-total-preview {
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            background: var(--surface-bg);
+            border: 1px solid var(--surface-border);
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .detail-total-preview span { color: var(--text-muted); font-size: 11.5px; }
+        .detail-total-preview strong { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+
+        /* ================================================================
+           TOAST NOTIFICATION SYSTEM
+           ================================================================ */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 360px;
+        }
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 13px 16px;
+            border-radius: var(--radius-lg);
+            background: var(--surface-card);
+            border: 1px solid var(--surface-border);
+            box-shadow: var(--shadow-xl);
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .toast.removing {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        .toast-icon {
+            width: 28px; height: 28px;
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0;
+        }
+        .toast.success .toast-icon { background: var(--green-50); color: var(--green-600); }
+        .toast.error .toast-icon { background: var(--rose-50); color: var(--rose-600); }
+        .toast.info .toast-icon { background: var(--blue-50); color: var(--blue-600); }
+        .toast.warn .toast-icon { background: var(--amber-50); color: var(--amber-600); }
+        .dark .toast.success .toast-icon { background: rgba(16,185,129,0.12); color: var(--green-500); }
+        .dark .toast.error .toast-icon { background: rgba(244,63,94,0.12); color: var(--rose-500); }
+        .dark .toast.info .toast-icon { background: rgba(59,130,246,0.12); color: var(--blue-500); }
+        .dark .toast.warn .toast-icon { background: rgba(245,158,11,0.12); color: var(--amber-500); }
+        .toast-body { flex: 1; min-width: 0; }
+        .toast-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+        .toast-msg { font-size: 12px; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
+        .toast-close {
+            width: 22px; height: 22px;
+            border-radius: 4px; border: none;
+            background: transparent; color: var(--text-muted);
+            cursor: pointer; font-size: 11px;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition-fast); flex-shrink: 0;
+        }
+        .toast-close:hover { background: var(--surface-hover); color: var(--text-primary); }
+
+        /* ================================================================
+           KEYFRAME ANIMATIONS
+           ================================================================ */
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes ping {
+            0% { transform: scale(1); opacity: 1; }
+            75%, 100% { transform: scale(1.8); opacity: 0; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card entrance animation */
+        .animate-in {
+            animation: fadeInUp 0.5s ease both;
+        }
+        .kpi-card:nth-child(1) { animation-delay: 0.05s; }
+        .kpi-card:nth-child(2) { animation-delay: 0.10s; }
+        .kpi-card:nth-child(3) { animation-delay: 0.15s; }
+        .kpi-card:nth-child(4) { animation-delay: 0.20s; }
+
+        /* ================================================================
+           RESPONSIVE
+           ================================================================ */
+        @media (max-width: 768px) {
+            #sidebar { transform: translateX(-100%); }
+            #sidebar:not(.sidebar-mobile-hidden) { transform: translateX(0) !important; }
+            .main-wrapper { margin-left: 0; }
+            .search-wrap { display: none; }
+            .trm-pill .trm-text { display: none; }
+            .page-main { padding: 16px; }
+            .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .content-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .detail-line { grid-template-columns: 1fr 70px 30px; }
+            .detail-line .detail-price { display: none; }
+        }
+        @media (max-width: 480px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            #toast-container { right: 12px; bottom: 12px; left: 12px; max-width: none; }
         }
     </style>
 </head>
-<body class="h-full font-sans antialiased text-slate-800 flex flex-col md:flex-row overflow-hidden">
+<body>
+<div class="app-shell">
 
-    <!-- SIDEBAR (MENÚ LATERAL) -->
-    <!-- Mobile Sidebar Backdrop -->
-    <div id="mobile-sidebar-backdrop" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden md:hidden transition-all-ease"></div>
+    <!-- ============================================================
+         MOBILE BACKDROP
+    ============================================================= -->
+    <div id="mobile-backdrop"></div>
 
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-customNavy-950 border-r border-customNavy-900 text-slate-300 transform -translate-x-full md:translate-x-0 md:relative md:flex transition-all-ease">
-        <!-- Logo / Brand Header -->
-        <div class="flex h-16 shrink-0 items-center justify-between px-6 border-b border-customNavy-900">
-            <div class="flex items-center gap-3">
-                <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-tr from-electricBlue-600 to-emeraldCustom-500 text-white shadow-md shadow-blue-500/20">
-                    <i class="fa-solid fa-anchor text-lg"></i>
+    <!-- ============================================================
+         SIDEBAR
+    ============================================================= -->
+    <aside id="sidebar" role="navigation" aria-label="Menú principal">
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="brand-logo">
+                <div class="brand-icon" aria-hidden="true">
+                    <i class="fa-solid fa-anchor"></i>
                 </div>
-                <div>
-                    <h1 class="text-lg font-bold text-white tracking-tight leading-none">Aduana<span class="text-electricBlue-500">Billing</span></h1>
-                    <span class="text-[10px] text-slate-400 font-medium tracking-wider uppercase">Agencia de Aduanas</span>
+                <div class="brand-text">
+                    <h1>Aduana<span>Billing</span></h1>
+                    <p>Agencia de Aduanas</p>
                 </div>
             </div>
-            <!-- Close mobile sidebar button -->
-            <button id="close-sidebar-btn" class="p-1.5 rounded-lg bg-customNavy-900 text-slate-400 hover:text-white md:hidden transition-colors">
-                <i class="fa-solid fa-xmark text-lg"></i>
+            <button id="close-sidebar-btn" class="btn-icon" aria-label="Cerrar menú" style="display:none">
+                <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
-        <!-- Navigation Links -->
-        <nav class="flex-1 space-y-1.5 px-4 py-6 overflow-y-auto">
-            <!-- Section Header -->
-            <div class="px-3 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Operaciones</div>
-            
-            <a href="#" class="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-sm font-medium bg-gradient-to-r from-electricBlue-600/15 to-electricBlue-600/5 text-white border-l-2 border-electricBlue-500 transition-all-ease group">
-                <i class="fa-solid fa-chart-pie text-electricBlue-500 group-hover:scale-110 transition-transform"></i>
-                <span>Resumen</span>
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Operaciones</div>
+
+            <a href="#dashboard" class="nav-link active" id="nav-dashboard" aria-current="page">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Resumen Operativo</span>
             </a>
 
-            <a href="#" class="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-customNavy-900 hover:text-white border-l-2 border-transparent hover:border-slate-700 transition-all-ease group">
-                <i class="fa-solid fa-file-invoice text-slate-400 group-hover:text-white group-hover:scale-110 transition-transform"></i>
-                <div class="flex-1 flex items-center justify-between">
-                    <span>Expedientes (DUA/BL)</span>
-                    <span class="bg-blue-950 text-blue-400 text-xs px-2 py-0.5 rounded-full font-bold">148</span>
-                </div>
+            <a href="#expedientes" class="nav-link" id="nav-expedientes">
+                <i class="fa-solid fa-file-contract"></i>
+                <span>Expedientes (DUA/BL)</span>
+                <span class="nav-badge blue">148</span>
             </a>
 
-            <a href="#" class="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-customNavy-900 hover:text-white border-l-2 border-transparent hover:border-slate-700 transition-all-ease group">
-                <i class="fa-solid fa-receipt text-slate-400 group-hover:text-white group-hover:scale-110 transition-transform"></i>
-                <div class="flex-1 flex items-center justify-between">
-                    <span>Facturación</span>
-                    <span class="bg-emerald-950 text-emerald-400 text-xs px-2 py-0.5 rounded-full font-bold">24</span>
-                </div>
+            <a href="#facturacion" class="nav-link" id="nav-facturacion">
+                <i class="fa-solid fa-receipt"></i>
+                <span>Facturación</span>
+                <span class="nav-badge green" id="badge-pendientes">—</span>
             </a>
 
-            <!-- Section Header -->
-            <div class="px-3 mt-6 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Gestión</div>
+            <div class="nav-section-label">Gestión</div>
 
-            <a href="#" class="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-customNavy-900 hover:text-white border-l-2 border-transparent hover:border-slate-700 transition-all-ease group">
-                <i class="fa-solid fa-folder-open text-slate-400 group-hover:text-white group-hover:scale-110 transition-transform"></i>
+            <a href="#clientes" class="nav-link" id="nav-clientes">
+                <i class="fa-solid fa-users"></i>
+                <span>Clientes</span>
+            </a>
+
+            <a href="#comprobantes" class="nav-link" id="nav-comprobantes">
+                <i class="fa-solid fa-stamp"></i>
+                <span>Comprobantes NCF</span>
+            </a>
+
+            <a href="#catalogo" class="nav-link">
+                <i class="fa-solid fa-folder-open"></i>
                 <span>Catálogo de Servicios</span>
             </a>
 
-            <a href="#" class="flex items-center gap-3.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-customNavy-900 hover:text-white border-l-2 border-transparent hover:border-slate-700 transition-all-ease group">
-                <i class="fa-solid fa-sliders text-slate-400 group-hover:text-white group-hover:scale-110 transition-transform"></i>
+            <div class="nav-section-label">Sistema</div>
+
+            <a href="#configuracion" class="nav-link">
+                <i class="fa-solid fa-sliders"></i>
                 <span>Configuración</span>
+            </a>
+
+            <a href="https://arancel.dian.gov.co" target="_blank" rel="noopener noreferrer" class="nav-link">
+                <i class="fa-solid fa-book-atlas"></i>
+                <span>Aranceles DIAN</span>
+                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px;margin-left:auto;opacity:0.5"></i>
             </a>
         </nav>
 
-        <!-- Sidebar Footer / User Quick Info -->
-        <div class="p-4 border-t border-customNavy-900 bg-customNavy-950/50">
-            <div class="flex items-center gap-3 p-2 rounded-lg bg-customNavy-900/40">
-                <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80" alt="Avatar" class="h-10 w-10 rounded-full object-cover border border-slate-700">
-                    <div class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emeraldCustom-500 ring-2 ring-customNavy-950"></div>
+        <!-- User Footer -->
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar-wrap">
+                    <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#059669);display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:700;flex-shrink:0">AR</div>
+                    <span class="user-status-dot"></span>
                 </div>
-                <div class="overflow-hidden">
-                    <h4 class="text-xs font-semibold text-white truncate">Lic. Alejandro Ruiz</h4>
-                    <p class="text-[10px] text-slate-400 truncate">Agente de Aduanas</p>
+                <div class="user-info">
+                    <div class="user-name">Lic. Alejandro Ruiz</div>
+                    <div class="user-role">Agente de Aduanas</div>
                 </div>
-                <a href="#" class="ml-auto p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-customNavy-900 transition-colors">
+                <button class="user-logout" title="Cerrar sesión" aria-label="Cerrar sesión">
                     <i class="fa-solid fa-right-from-bracket"></i>
-                </a>
+                </button>
             </div>
         </div>
     </aside>
 
-    <!-- WRAPPER PRINCIPAL (CONTENT AREA) -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-y-auto h-full">
+    <!-- ============================================================
+         MAIN WRAPPER
+    ============================================================= -->
+    <div class="main-wrapper" id="main-wrapper">
 
-        <!-- TOP NAVBAR -->
-        <header class="sticky top-0 z-30 flex h-16 w-full shrink-0 items-center justify-between border-b border-slate-200 bg-white/85 backdrop-blur-md px-6 shadow-sm">
-            <!-- Mobile Toggle Button -->
-            <div class="flex items-center gap-4">
-                <button id="open-sidebar-btn" class="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 md:hidden transition-colors">
-                    <i class="fa-solid fa-bars text-xl"></i>
+        <!-- ── TOPBAR ─────────────────────────────────────────────── -->
+        <header class="topbar" role="banner">
+            <div class="topbar-left">
+                <button id="open-sidebar-btn" class="btn-icon" aria-label="Abrir menú" style="display:none">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
 
-                <!-- Search Bar -->
-                <div class="hidden sm:flex items-center relative w-72">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-sm"></i>
-                    <input type="text" placeholder="Buscar expedientes, facturas..." class="w-full pl-9 pr-4 py-1.5 text-sm rounded-lg border border-slate-200 bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:border-electricBlue-500 focus:bg-white transition-all-ease">
+                <!-- Search -->
+                <div class="search-wrap" role="search">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input id="search-input" type="text" class="search-input"
+                           placeholder="Buscar facturas, clientes, expedientes..."
+                           aria-label="Buscar en el sistema">
                 </div>
             </div>
 
-            <!-- Header Actions -->
-            <div class="flex items-center gap-4">
-                
-                <!-- Tasa de Cambio del Día (Exchange Rate) -->
-                <div class="relative">
-                    <button id="exchange-rate-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-electricBlue-700 hover:bg-blue-100 transition-all-ease text-xs font-semibold shadow-xs">
-                        <i class="fa-solid fa-dollar-sign animate-pulse"></i>
-                        <span>TRM Hoy: $4,120.50 COP</span>
-                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
+            <div class="topbar-right">
+                <!-- TRM Button -->
+                <div style="position:relative">
+                    <button id="trm-btn" class="trm-pill" aria-expanded="false" aria-haspopup="true">
+                        <span class="trm-dot" aria-hidden="true"></span>
+                        <span class="trm-text">TRM: <strong>$4,120.50</strong> COP</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size:9px;opacity:0.7"></i>
                     </button>
-                    <!-- Exchange Rate Popup / Calculator -->
-                    <div id="exchange-rate-dropdown" class="absolute right-0 mt-2 w-64 rounded-xl border border-slate-100 bg-white p-4 shadow-lg ring-1 ring-slate-900/5 hidden transition-all-ease z-50">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
-                            <h5 class="text-xs font-bold text-slate-900 uppercase">Tasa de Cambio Aduanera</h5>
-                            <span class="text-[10px] text-slate-400">Oficial DIAN</span>
+                    <div id="trm-dropdown" class="dropdown hidden trm-dropdown" role="dialog" aria-label="Calculadora de tasa de cambio">
+                        <div class="dropdown-header">
+                            <h5>Tasa de Cambio Aduanera</h5>
+                            <p>Oficial DIAN · Actualizado hoy</p>
                         </div>
-                        <div class="space-y-2.5">
-                            <div class="flex justify-between items-center text-xs text-slate-600">
-                                <span>1 USD</span>
-                                <span class="font-bold text-slate-900">$4,120.50 COP</span>
-                            </div>
-                            <div class="flex justify-between items-center text-xs text-slate-600 border-b border-slate-100 pb-2">
-                                <span>1 EUR</span>
-                                <span class="font-bold text-slate-900">$4,485.10 COP</span>
-                            </div>
-                            <!-- Small Quick Converter -->
-                            <div class="pt-1">
-                                <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Calculadora Rápida</label>
-                                <div class="flex gap-2">
-                                    <div class="relative flex-1">
-                                        <input id="calc-usd" type="number" placeholder="USD" class="w-full pl-5 pr-2 py-1 text-xs border border-slate-200 rounded-md focus:outline-none focus:border-electricBlue-500">
-                                        <span class="absolute left-1.5 top-1 text-slate-400 text-xs">$</span>
-                                    </div>
-                                    <div class="flex items-center text-slate-400">
-                                        <i class="fa-solid fa-arrow-right-long text-[10px]"></i>
-                                    </div>
-                                    <div class="relative flex-1">
-                                        <input id="calc-cop" type="text" readonly placeholder="COP" class="w-full px-2 py-1 text-xs border border-slate-200 rounded-md bg-slate-50 font-semibold text-slate-700">
-                                    </div>
+                        <div style="padding:14px">
+                            <div class="trm-row"><span>1 USD</span><strong>$4,120.50 COP</strong></div>
+                            <div class="trm-row"><span>1 EUR</span><strong>$4,485.10 COP</strong></div>
+                            <div class="trm-calc">
+                                <label for="calc-usd">Calculadora Rápida</label>
+                                <div class="trm-calc-row">
+                                    <input id="calc-usd" type="number" class="trm-input" placeholder="USD" min="0" aria-label="Valor en dólares">
+                                    <span class="trm-arrow"><i class="fa-solid fa-arrow-right-long"></i></span>
+                                    <input id="calc-cop" type="text" class="trm-input" readonly placeholder="COP" aria-label="Valor en pesos colombianos">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Dark mode toggle -->
+                <button id="dark-mode-toggle" class="dark-toggle" aria-label="Cambiar modo oscuro/claro" title="Modo oscuro/claro">
+                    <i class="fa-solid fa-moon" id="dark-icon"></i>
+                </button>
 
                 <!-- Notifications -->
-                <div class="relative">
-                    <button id="notifications-btn" class="relative p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors">
-                        <i class="fa-regular fa-bell text-xl"></i>
-                        <span class="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white"></span>
+                <div style="position:relative" class="notif-btn-wrap">
+                    <button id="notif-btn" class="btn-icon" aria-expanded="false" aria-haspopup="true" aria-label="Notificaciones">
+                        <i class="fa-regular fa-bell" style="font-size:16px"></i>
+                        <span class="notif-dot" aria-label="Nuevas notificaciones"></span>
                     </button>
-                    <!-- Notifications Dropdown -->
-                    <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 rounded-xl border border-slate-100 bg-white py-2 shadow-lg ring-1 ring-slate-900/5 hidden z-50">
-                        <div class="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-900 uppercase">Notificaciones</span>
-                            <a href="#" class="text-[10px] text-electricBlue-600 hover:underline">Marcar leídas</a>
+                    <div id="notif-dropdown" class="dropdown hidden notif-dropdown" role="dialog" aria-label="Notificaciones">
+                        <div class="dropdown-header" style="display:flex;align-items:center;justify-content:space-between">
+                            <h5>Notificaciones</h5>
+                            <span style="font-size:11px;color:var(--blue-600);cursor:pointer;font-weight:600">Marcar leídas</span>
                         </div>
-                        <div class="max-h-64 overflow-y-auto">
-                            <a href="#" class="flex gap-3 px-4 py-3 hover:bg-slate-50 border-b border-slate-50 transition-colors">
-                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
-                                    <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+                        <div class="notif-list">
+                            <div class="notif-item">
+                                <div class="notif-icon rose"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                                <div class="notif-body">
+                                    <p>Vencimiento de DUA-2026-8841</p>
+                                    <span>El plazo vence en 24 horas · Hace 2h</span>
                                 </div>
-                                <div class="text-xs">
-                                    <p class="font-medium text-slate-900">Vencimiento de DUA-2026-8841</p>
-                                    <p class="text-slate-400 mt-0.5">El plazo vence en 24 horas.</p>
+                            </div>
+                            <div class="notif-item">
+                                <div class="notif-icon green"><i class="fa-solid fa-circle-check"></i></div>
+                                <div class="notif-body">
+                                    <p>Factura FAC-2026-0482 Pagada</p>
+                                    <span>$4,250.00 USD · Importadora Global · Hace 5h</span>
                                 </div>
-                            </a>
-                            <a href="#" class="flex gap-3 px-4 py-3 hover:bg-slate-50 border-b border-slate-50 transition-colors">
-                                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emeraldCustom-600">
-                                    <i class="fa-solid fa-receipt text-xs"></i>
+                            </div>
+                            <div class="notif-item">
+                                <div class="notif-icon rose"><i class="fa-solid fa-bell"></i></div>
+                                <div class="notif-body">
+                                    <p>7 expedientes con vencimiento crítico</p>
+                                    <span>Requieren atención inmediata · Hoy</span>
                                 </div>
-                                <div class="text-xs">
-                                    <p class="font-medium text-slate-900">Factura FAC-2026-0482 Pagada</p>
-                                    <p class="text-slate-400 mt-0.5">Monto de $4,250.00 USD abonado por Importadora Global.</p>
-                                </div>
-                            </a>
+                            </div>
                         </div>
+                        <div class="notif-footer">Ver todas las notificaciones</div>
                     </div>
                 </div>
 
-                <!-- User Menu Profile -->
-                <div class="relative">
-                    <button id="user-menu-btn" class="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-colors">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80" alt="Avatar" class="h-8 w-8 rounded-full object-cover">
-                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs hidden sm:inline mr-1"></i>
+                <!-- User Menu -->
+                <div style="position:relative">
+                    <button id="user-menu-btn" aria-expanded="false" aria-haspopup="true" aria-label="Menú de usuario" style="border:none;background:none;cursor:pointer;padding:2px">
+                        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#059669);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;border:2px solid var(--surface-border);transition:border-color 0.15s">AR</div>
                     </button>
-                    <!-- User Dropdown Menu -->
-                    <div id="user-menu-dropdown" class="absolute right-0 mt-2 w-48 rounded-xl border border-slate-100 bg-white py-1 shadow-lg ring-1 ring-slate-900/5 hidden z-50">
-                        <div class="px-4 py-2 border-b border-slate-100">
-                            <p class="text-xs font-semibold text-slate-900">Alejandro Ruiz</p>
-                            <p class="text-[10px] text-slate-400">alejandro.ruiz@aduana.com</p>
+                    <div id="user-dropdown" class="dropdown hidden" role="dialog" aria-label="Opciones de usuario">
+                        <div class="dropdown-header">
+                            <p style="font-size:12px;font-weight:600;color:var(--text-primary)">Alejandro Ruiz</p>
+                            <p>alejandro.ruiz@aduana.com</p>
                         </div>
-                        <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">
-                            <i class="fa-regular fa-user text-slate-400"></i> Mi Perfil
-                        </a>
-                        <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50">
-                            <i class="fa-solid fa-gears text-slate-400"></i> Ajustes
-                        </a>
-                        <hr class="border-slate-100 my-1">
-                        <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50">
-                            <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
-                        </a>
+                        <a href="#" class="dropdown-item"><i class="fa-regular fa-user" style="width:16px;text-align:center;color:var(--text-muted)"></i> Mi Perfil</a>
+                        <a href="#" class="dropdown-item"><i class="fa-solid fa-gears" style="width:16px;text-align:center;color:var(--text-muted)"></i> Ajustes</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item danger"><i class="fa-solid fa-right-from-bracket" style="width:16px;text-align:center"></i> Cerrar Sesión</a>
                     </div>
                 </div>
-
             </div>
         </header>
 
-        <!-- CONTENIDO PRINCIPAL -->
-        <main class="flex-1 p-6 space-y-6 max-w-7xl w-full mx-auto">
-            
-            <!-- Welcome Header & Live Feed Info -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <!-- ── PAGE CONTENT ───────────────────────────────────────── -->
+        <main class="page-main" id="page-main" role="main">
+
+            <!-- Page Header -->
+            <div class="page-header animate-in">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Resumen Operativo</h2>
-                    <p class="text-sm text-slate-500 mt-1">Monitoreo de expedientes, importaciones y facturación en tiempo real.</p>
+                    <h2 class="page-title">Resumen Operativo</h2>
+                    <p class="page-subtitle">Monitoreo de expedientes, importaciones y facturación en tiempo real.</p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emeraldCustom-700 text-xs font-semibold">
-                        <span class="h-2 w-2 rounded-full bg-emeraldCustom-500 animate-ping"></span>
-                        Aduana API: Conectado
+                <div class="header-actions">
+                    <span class="status-badge" id="api-status-badge">
+                        <span class="ping" aria-hidden="true"></span>
+                        API: Conectando…
                     </span>
-                    <button class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-xs text-slate-600 transition-colors">
+                    <button id="refresh-btn" class="btn btn-secondary btn-sm" aria-label="Actualizar datos">
                         <i class="fa-solid fa-rotate-right"></i>
                         Actualizar
                     </button>
                 </div>
             </div>
 
-            <!-- GRID DE TARJETAS DE MÉTRICAS (GRID CSS) -->
-            <section class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                
-                <!-- Card: Facturas Pendientes -->
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow-ease duration-300">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Facturas Pendientes</span>
-                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
-                        </div>
+            <!-- KPI Cards -->
+            <section class="kpi-grid" aria-label="Métricas principales">
+
+                <div class="kpi-card animate-in" id="kpi-pendientes">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Facturas Pendientes</span>
+                        <div class="kpi-icon amber" aria-hidden="true"><i class="fa-solid fa-clock-rotate-left"></i></div>
                     </div>
-                    <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-slate-900">24</span>
-                        <span class="text-xs font-medium text-rose-600 bg-rose-50 px-2 py-0.5 rounded">Alta Prioridad</span>
+                    <div class="kpi-value" id="kpi-val-pendientes">
+                        <span class="skeleton sk-line w-16">&nbsp;</span>
                     </div>
-                    <div class="mt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
+                    <div class="kpi-sub">
                         <span>Monto Acumulado</span>
-                        <span class="font-bold text-slate-800">$182,450 USD</span>
+                        <span class="kpi-tag warn" id="kpi-tag-pendientes">Alta Prioridad</span>
                     </div>
                 </div>
 
-                <!-- Card: Expedientes Activos -->
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow-ease duration-300">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Expedientes Activos</span>
-                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-electricBlue-600">
-                            <i class="fa-solid fa-file-contract"></i>
-                        </div>
+                <div class="kpi-card animate-in" id="kpi-expedientes">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Expedientes Activos</span>
+                        <div class="kpi-icon blue" aria-hidden="true"><i class="fa-solid fa-file-contract"></i></div>
                     </div>
-                    <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-slate-900">148</span>
-                        <span class="text-xs font-medium text-emeraldCustom-600 bg-emerald-50 px-2 py-0.5 rounded">+12.4% este mes</span>
-                    </div>
-                    <div class="mt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
-                        <span>Aduana / DUA</span>
-                        <span class="font-medium text-slate-800">105 Importación | 43 Exportación</span>
+                    <div class="kpi-value">148</div>
+                    <div class="kpi-sub">
+                        <span>Importación / Exportación</span>
+                        <span class="kpi-tag up"><i class="fa-solid fa-arrow-trend-up"></i> +12.4%</span>
                     </div>
                 </div>
 
-                <!-- Card: Facturado este Mes -->
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow-ease duration-300">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Facturado este Mes</span>
-                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emeraldCustom-600">
-                            <i class="fa-solid fa-circle-check"></i>
-                        </div>
+                <div class="kpi-card animate-in">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Facturado este Mes</span>
+                        <div class="kpi-icon green" aria-hidden="true"><i class="fa-solid fa-circle-dollar-to-slot"></i></div>
                     </div>
-                    <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-slate-900">$945,800</span>
-                        <span class="text-xs text-slate-500 font-bold">USD</span>
-                    </div>
-                    <div class="mt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
+                    <div class="kpi-value">$945,800</div>
+                    <div class="kpi-sub">
                         <span>Meta Mensual (85%)</span>
-                        <div class="w-24 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                            <div class="bg-emeraldCustom-500 h-1.5 rounded-full" style="width: 85%"></div>
+                        <div class="kpi-progress-bar" aria-label="85% de la meta" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">
+                            <div class="kpi-progress-fill" style="width:0%" data-target="85"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Card: Vencimientos Críticos -->
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs hover:shadow-md transition-shadow-ease duration-300">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Vencimientos Críticos</span>
-                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
-                            <i class="fa-solid fa-bell-slash"></i>
-                        </div>
+                <div class="kpi-card animate-in" id="kpi-vencimientos">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Vencimientos Críticos</span>
+                        <div class="kpi-icon rose" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></div>
                     </div>
-                    <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-slate-900">7</span>
-                        <span class="text-xs font-medium text-rose-600 bg-rose-50 px-2 py-0.5 rounded">Expedientes DUA</span>
-                    </div>
-                    <div class="mt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
+                    <div class="kpi-value">7</div>
+                    <div class="kpi-sub">
                         <span>Requieren Acción</span>
-                        <span class="font-bold text-rose-600">¡Atención Hoy!</span>
+                        <span class="kpi-tag down"><i class="fa-solid fa-circle-exclamation"></i> ¡Hoy!</span>
                     </div>
                 </div>
+
             </section>
 
-            <!-- SECCIÓN CENTRAL DE DATOS (TABLA + ACCIONES RÁPIDAS) -->
-            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- TABLA DE ÚLTIMAS FACTURAS EMITIDAS (2 Columnas en pantallas grandes) -->
-                <div class="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden flex flex-col">
-                    <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <!-- Content Grid -->
+            <div class="content-grid">
+
+                <!-- ── INVOICE TABLE ─────────────────────────────────── -->
+                <div class="panel" id="invoices-panel">
+                    <div class="panel-header">
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900">Últimas Facturas Emitidas</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Historial reciente de cobros por servicios aduaneros y aranceles.</p>
+                            <div class="panel-title">Últimas Facturas Emitidas</div>
+                            <div class="panel-subtitle">Historial de cobros por servicios aduaneros</div>
                         </div>
-                        <div class="flex gap-2">
-                            <select class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500">
-                                <option>Todos los Estados</option>
-                                <option>Pagadas</option>
-                                <option>Pendientes</option>
-                                <option>Anuladas</option>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                            <select id="status-filter" class="filter-select" aria-label="Filtrar por estado">
+                                <option value="">Todos los estados</option>
+                                <option value="PAGADA">Pagadas</option>
+                                <option value="PENDIENTE">Pendientes</option>
+                                <option value="ANULADA">Anuladas</option>
                             </select>
+                            <button id="btn-new-invoice" class="btn btn-success btn-sm">
+                                <i class="fa-solid fa-plus"></i>
+                                Nueva Factura
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Table Wrapper -->
-                    <div class="flex-1 overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                    <div style="overflow-x:auto">
+                        <table class="data-table" id="invoices-table" aria-label="Tabla de facturas">
                             <thead>
-                                <tr class="bg-slate-50/75 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                    <th class="px-6 py-3.5">N° Factura</th>
-                                    <th class="px-6 py-3.5">Cliente</th>
-                                    <th class="px-6 py-3.5">Expediente (DUA)</th>
-                                    <th class="px-6 py-3.5">Monto (USD)</th>
-                                    <th class="px-6 py-3.5">Estado</th>
-                                    <th class="px-6 py-3.5 text-right">Acciones</th>
+                                <tr>
+                                    <th scope="col">N° Factura</th>
+                                    <th scope="col">Cliente</th>
+                                    <th scope="col">NCF</th>
+                                    <th scope="col">Total (USD)</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col" style="text-align:right">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100 text-sm">
-                                <!-- Fila 1 -->
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="px-6 py-4 font-semibold text-slate-900">FAC-2026-0482</td>
-                                    <td class="px-6 py-4">Importadora Global S.A.</td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="font-mono text-xs text-slate-500">DUA-2026-8841</span>
-                                            <span class="inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 font-semibold text-slate-800">$4,250.00</td>
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emeraldCustom-700">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-emeraldCustom-500"></span>
-                                            Pagado
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <button class="p-1.5 text-slate-400 hover:text-electricBlue-600 rounded hover:bg-slate-100 transition-all" title="Ver Detalle">
-                                                <i class="fa-regular fa-eye"></i>
-                                            </button>
-                                            <button class="p-1.5 text-slate-400 hover:text-emeraldCustom-600 rounded hover:bg-slate-100 transition-all" title="Descargar PDF">
-                                                <i class="fa-regular fa-file-pdf"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Fila 2 -->
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="px-6 py-4 font-semibold text-slate-900">FAC-2026-0481</td>
-                                    <td class="px-6 py-4">Logística Intercontinental</td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="font-mono text-xs text-slate-500">DUA-2026-8835</span>
-                                            <span class="inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 font-semibold text-slate-800">$8,740.00</td>
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                                            Pendiente
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <button class="p-1.5 text-slate-400 hover:text-electricBlue-600 rounded hover:bg-slate-100 transition-all" title="Ver Detalle">
-                                                <i class="fa-regular fa-eye"></i>
-                                            </button>
-                                            <button class="p-1.5 text-slate-400 hover:text-emeraldCustom-600 rounded hover:bg-slate-100 transition-all" title="Descargar PDF">
-                                                <i class="fa-regular fa-file-pdf"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Fila 3 -->
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="px-6 py-4 font-semibold text-slate-900">FAC-2026-0480</td>
-                                    <td class="px-6 py-4">Textiles Andinos Ltda.</td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="font-mono text-xs text-slate-500">DUA-2026-8812</span>
-                                            <span class="inline-flex h-2 w-2 rounded-full bg-orange-500"></span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 font-semibold text-slate-800">$1,920.00</td>
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emeraldCustom-700">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-emeraldCustom-500"></span>
-                                            Pagado
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <button class="p-1.5 text-slate-400 hover:text-electricBlue-600 rounded hover:bg-slate-100 transition-all" title="Ver Detalle">
-                                                <i class="fa-regular fa-eye"></i>
-                                            </button>
-                                            <button class="p-1.5 text-slate-400 hover:text-emeraldCustom-600 rounded hover:bg-slate-100 transition-all" title="Descargar PDF">
-                                                <i class="fa-regular fa-file-pdf"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Fila 4 -->
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="px-6 py-4 font-semibold text-slate-900">FAC-2026-0479</td>
-                                    <td class="px-6 py-4">Distribuidora Automotriz Sur</td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="font-mono text-xs text-slate-500">DUA-2026-8799</span>
-                                            <span class="inline-flex h-2 w-2 rounded-full bg-blue-500"></span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 font-semibold text-slate-800">$12,350.00</td>
-                                    <td class="px-6 py-4">
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
-                                            Anulado
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <button class="p-1.5 text-slate-400 hover:text-electricBlue-600 rounded hover:bg-slate-100 transition-all cursor-not-allowed" disabled>
-                                                <i class="fa-regular fa-eye-slash"></i>
-                                            </button>
-                                            <button class="p-1.5 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100 transition-all cursor-not-allowed" disabled>
-                                                <i class="fa-solid fa-ban"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                            <tbody id="invoices-tbody">
+                                <!-- Skeleton rows while loading -->
+                                <tr class="sk-row"><td><span class="skeleton sk-line w-24">&nbsp;</span></td><td><span class="skeleton sk-line w-32">&nbsp;</span></td><td><span class="skeleton sk-line w-20">&nbsp;</span></td><td><span class="skeleton sk-line w-16">&nbsp;</span></td><td><span class="skeleton sk-chip">&nbsp;</span></td><td></td></tr>
+                                <tr class="sk-row"><td><span class="skeleton sk-line w-24">&nbsp;</span></td><td><span class="skeleton sk-line w-32">&nbsp;</span></td><td><span class="skeleton sk-line w-20">&nbsp;</span></td><td><span class="skeleton sk-line w-16">&nbsp;</span></td><td><span class="skeleton sk-chip">&nbsp;</span></td><td></td></tr>
+                                <tr class="sk-row"><td><span class="skeleton sk-line w-24">&nbsp;</span></td><td><span class="skeleton sk-line w-32">&nbsp;</span></td><td><span class="skeleton sk-line w-20">&nbsp;</span></td><td><span class="skeleton sk-line w-16">&nbsp;</span></td><td><span class="skeleton sk-chip">&nbsp;</span></td><td></td></tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Footer Table -->
-                    <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-xs bg-slate-50/50">
-                        <span class="text-slate-500">Mostrando 4 de 24 facturas</span>
-                        <a href="#" class="font-semibold text-electricBlue-600 hover:text-electricBlue-700 hover:underline flex items-center gap-1.5">
-                            Ver todo el historial
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </a>
+                    <div class="table-footer" id="table-footer">
+                        <span id="table-count">Cargando facturas…</span>
+                        <a href="#" id="view-all-link">Ver historial completo <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
 
-                <!-- ACCIONES RÁPIDAS Y WIDGETS (1 Columna en pantallas grandes) -->
-                <div class="space-y-6">
-                    
-                    <!-- Tarjeta: Accesos Rápidos (Acciones) -->
-                    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-bolt text-amber-500"></i>
-                            Acciones Operativas
-                        </h3>
-                        <div class="space-y-3">
-                            <button id="new-invoice-btn" class="w-full flex items-center justify-between p-3 rounded-lg border border-emeraldCustom-100 bg-emerald-50/30 hover:bg-emerald-50 text-emeraldCustom-700 text-sm font-semibold hover:border-emeraldCustom-200 hover:shadow-xs transition-all-ease">
-                                <span class="flex items-center gap-2.5">
-                                    <i class="fa-solid fa-file-circle-plus text-base"></i>
-                                    Nueva Factura
-                                </span>
-                                <i class="fa-solid fa-chevron-right text-xs"></i>
-                            </button>
+                <!-- ── RIGHT COLUMN ──────────────────────────────────── -->
+                <div style="display:flex;flex-direction:column;gap:16px">
 
-                            <button id="new-file-btn" class="w-full flex items-center justify-between p-3 rounded-lg border border-blue-100 bg-blue-50/30 hover:bg-blue-50 text-electricBlue-700 text-sm font-semibold hover:border-blue-200 hover:shadow-xs transition-all-ease">
-                                <span class="flex items-center gap-2.5">
-                                    <i class="fa-solid fa-folder-plus text-base"></i>
-                                    Crear Expediente (DUA)
-                                </span>
-                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                    <!-- Quick Actions -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-bolt" style="color:var(--amber-500);margin-right:6px"></i>
+                                Acciones Rápidas
+                            </div>
+                        </div>
+                        <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+                            <button id="qa-new-invoice" class="action-card green" style="border:none;font-family:inherit;text-align:left;width:100%">
+                                <div>
+                                    <div class="label">Nueva Factura</div>
+                                    <div class="sub">Crear con detalles de servicio</div>
+                                </div>
+                                <div class="action-card-icon"><i class="fa-solid fa-file-circle-plus"></i></div>
                             </button>
-
-                            <a href="https://arancel.dian.gov.co" target="_blank" class="w-full flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-slate-50/50 hover:bg-slate-50 text-slate-700 text-sm font-semibold hover:border-slate-200 transition-all-ease">
-                                <span class="flex items-center gap-2.5">
-                                    <i class="fa-solid fa-book-atlas text-base text-slate-500"></i>
-                                    Consultar Aranceles
-                                </span>
-                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                            <button id="qa-new-file" class="action-card blue" style="border:none;font-family:inherit;text-align:left;width:100%">
+                                <div>
+                                    <div class="label">Crear Expediente (DUA)</div>
+                                    <div class="sub">Importación · Exportación · Tránsito</div>
+                                </div>
+                                <div class="action-card-icon"><i class="fa-solid fa-folder-plus"></i></div>
+                            </button>
+                            <a href="https://arancel.dian.gov.co" target="_blank" rel="noopener noreferrer" class="action-card" style="color:inherit;">
+                                <div>
+                                    <div class="label" style="color:var(--text-primary)">Consultar Aranceles</div>
+                                    <div class="sub">Portal DIAN →</div>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:13px;color:var(--text-muted)"></i>
                             </a>
                         </div>
                     </div>
 
-                    <!-- Tarjeta: Estado del Ecosistema de Puertos / Aduana -->
-                    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-                        <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-network-wired text-electricBlue-500"></i>
-                            Conexión de Aduanas
-                        </h3>
-                        <div class="space-y-3.5">
-                            <!-- DIAN status -->
-                            <div class="flex items-center justify-between text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="h-2 w-2 rounded-full bg-emeraldCustom-500"></span>
-                                    <span class="font-medium text-slate-700">Sistema Arancelario (DIAN)</span>
-                                </div>
-                                <span class="text-slate-400 font-mono">15ms</span>
+                    <!-- Connectivity Panel -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <i class="fa-solid fa-network-wired" style="color:var(--blue-500);margin-right:6px"></i>
+                                Conexiones del Sistema
                             </div>
-                            <!-- Puerto status -->
-                            <div class="flex items-center justify-between text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="h-2 w-2 rounded-full bg-emeraldCustom-500"></span>
-                                    <span class="font-medium text-slate-700">Terminal Marítimo (Puerto)</span>
-                                </div>
-                                <span class="text-slate-400 font-mono">42ms</span>
+                        </div>
+                        <div style="padding:14px">
+                            <div class="conn-item">
+                                <span class="conn-label">
+                                    <span class="conn-dot ok"></span>
+                                    API Backend (Django)
+                                </span>
+                                <span class="conn-latency" id="api-latency">—</span>
                             </div>
-                            <!-- VUCE status -->
-                            <div class="flex items-center justify-between text-xs">
-                                <div class="flex items-center gap-2">
-                                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-                                    <span class="font-medium text-slate-700">Ventanilla Única (VUCE)</span>
-                                </div>
-                                <span class="text-amber-600 bg-amber-50 px-2 py-0.5 rounded text-[10px] font-bold">Inestable</span>
+                            <div class="conn-item">
+                                <span class="conn-label">
+                                    <span class="conn-dot ok"></span>
+                                    Aranceles DIAN
+                                </span>
+                                <span class="conn-latency">15ms</span>
+                            </div>
+                            <div class="conn-item">
+                                <span class="conn-label">
+                                    <span class="conn-dot ok"></span>
+                                    Terminal Marítimo
+                                </span>
+                                <span class="conn-latency">42ms</span>
+                            </div>
+                            <div class="conn-item">
+                                <span class="conn-label">
+                                    <span class="conn-dot warn"></span>
+                                    Ventanilla Única (VUCE)
+                                </span>
+                                <span class="conn-badge warn">Inestable</span>
                             </div>
                         </div>
                     </div>
 
-                </div>
-            </section>
+                </div><!-- end right column -->
+            </div><!-- end content-grid -->
+
         </main>
-    </div>
+    </div><!-- end main-wrapper -->
+</div><!-- end app-shell -->
 
-    <!-- MODALES INTERACTIVOS (NUEVA FACTURA) -->
-    <div id="new-invoice-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
-        <!-- Backdrop -->
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"></div>
-        <!-- Modal Content Container -->
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-100">
-                <div class="bg-white px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-file-invoice-dollar text-emeraldCustom-600"></i>
-                        Generar Nueva Factura
-                    </h3>
-                    <button id="close-invoice-modal-btn" class="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors">
-                        <i class="fa-solid fa-xmark text-lg"></i>
+<!-- ============================================================
+     TOAST CONTAINER
+============================================================= -->
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<!-- ============================================================
+     MODAL: NUEVA FACTURA
+============================================================= -->
+<div id="modal-invoice" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-invoice-title">
+    <div class="modal-box" id="modal-invoice-box">
+        <div class="modal-header">
+            <div class="modal-title green">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <span id="modal-invoice-title">Generar Nueva Factura</span>
+            </div>
+            <button class="modal-close" id="close-modal-invoice" aria-label="Cerrar modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="invoice-form" novalidate>
+            <div class="modal-body">
+                <!-- Cliente -->
+                <div class="form-group">
+                    <label class="form-label required" for="inv-cliente">Cliente / Importador</label>
+                    <select id="inv-cliente" name="cliente" class="form-control" required aria-required="true">
+                        <option value="">Cargando clientes…</option>
+                    </select>
+                    <span class="form-error">Selecciona un cliente.</span>
+                </div>
+                <!-- Comprobante Fiscal -->
+                <div class="form-group">
+                    <label class="form-label" for="inv-comprobante">Tipo de Comprobante Fiscal (NCF)</label>
+                    <select id="inv-comprobante" name="comprobante_fiscal" class="form-control">
+                        <option value="">Sin comprobante fiscal</option>
+                    </select>
+                </div>
+                <!-- Tasa de Cambio -->
+                <div class="form-group">
+                    <label class="form-label required" for="inv-tasa">Tasa de Cambio (TRM) USD→COP</label>
+                    <div class="input-prefix-wrap">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="inv-tasa" name="tasa_cambio" class="form-control" value="4120.50" step="0.01" min="1" required aria-required="true">
+                    </div>
+                </div>
+
+                <!-- Líneas de Detalle -->
+                <div class="form-group">
+                    <label class="form-label required">Líneas de Servicio</label>
+                    <div class="detail-lines" id="detail-lines-wrap">
+                        <!-- Líneas se agregan dinámicamente -->
+                    </div>
+                    <button type="button" id="add-detail-btn" class="btn btn-secondary btn-sm" style="margin-top:8px">
+                        <i class="fa-solid fa-plus"></i> Agregar Concepto
+                    </button>
+                    <div class="detail-total-preview" id="total-preview" style="margin-top:12px">
+                        <span>Total Estimado:</span>
+                        <strong id="total-preview-val">$0.00 USD</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancel-invoice" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" id="submit-invoice" class="btn btn-success">
+                    <i class="fa-solid fa-check"></i>
+                    Crear Factura
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================
+     MODAL: NUEVO EXPEDIENTE (DUA)
+============================================================= -->
+<div id="modal-expediente" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-exp-title">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title blue">
+                <i class="fa-solid fa-folder-open"></i>
+                <span id="modal-exp-title">Apertura de Expediente DUA/BL</span>
+            </div>
+            <button class="modal-close" id="close-modal-exp" aria-label="Cerrar modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="exp-form" novalidate>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label required" for="exp-importador">Importador / Exportador</label>
+                    <input type="text" id="exp-importador" class="form-control" placeholder="Nombre de la empresa cliente" required aria-required="true">
+                    <span class="form-error">Este campo es obligatorio.</span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required" for="exp-tipo">Tipo de Operación</label>
+                        <select id="exp-tipo" class="form-control" required aria-required="true">
+                            <option>Importación</option>
+                            <option>Exportación</option>
+                            <option>Tránsito Aduanero</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required" for="exp-via">Vía de Transporte</label>
+                        <select id="exp-via" class="form-control" required aria-required="true">
+                            <option>Marítima (BL)</option>
+                            <option>Aérea (AWB)</option>
+                            <option>Terrestre (Carta Porte)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required" for="exp-bl">N° Documento de Transporte (BL / AWB)</label>
+                    <input type="text" id="exp-bl" class="form-control" placeholder="Ej: MSKU90823528" required aria-required="true">
+                    <span class="form-error">Ingresa el número de documento.</span>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label required" for="exp-desc">Descripción General de la Mercancía</label>
+                    <textarea id="exp-desc" class="form-control" placeholder="Detalle de productos, partidas arancelarias…" required aria-required="true"></textarea>
+                    <span class="form-error">La descripción es obligatoria.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="cancel-exp" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-folder-plus"></i>
+                    Abrir Expediente
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — Módulos organizados
+============================================================= -->
+<script>
+'use strict';
+
+// ── CONFIGURACIÓN GLOBAL ─────────────────────────────────────
+const API_BASE = 'http://127.0.0.1:8000/api';
+const TRM = 4120.50;
+const PAGE_SIZE = 8;
+
+// ── STATE ────────────────────────────────────────────────────
+let state = {
+    facturas: [],
+    clientes: [],
+    comprobantes: [],
+    filtroEstado: '',
+    searchQuery: '',
+    currentPage: 1,
+    totalFacturas: 0,
+    darkMode: false,
+};
+
+// ================================================================
+// MÓDULO: DARK MODE
+// ================================================================
+const DarkMode = {
+    init() {
+        const stored = localStorage.getItem('ab-dark-mode');
+        state.darkMode = stored === 'true';
+        this.apply();
+        document.getElementById('dark-mode-toggle').addEventListener('click', () => this.toggle());
+    },
+    toggle() {
+        state.darkMode = !state.darkMode;
+        localStorage.setItem('ab-dark-mode', state.darkMode);
+        this.apply();
+    },
+    apply() {
+        const root = document.getElementById('app-root');
+        const icon = document.getElementById('dark-icon');
+        if (state.darkMode) {
+            root.classList.add('dark');
+            icon.className = 'fa-solid fa-sun';
+        } else {
+            root.classList.remove('dark');
+            icon.className = 'fa-solid fa-moon';
+        }
+    }
+};
+
+// ================================================================
+// MÓDULO: TOAST NOTIFICATIONS
+// ================================================================
+const Toast = {
+    icons: {
+        success: 'fa-circle-check',
+        error: 'fa-circle-xmark',
+        info: 'fa-circle-info',
+        warn: 'fa-triangle-exclamation',
+    },
+    show(type, title, message, duration = 4000) {
+        const container = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.setAttribute('role', 'alert');
+        t.innerHTML = `
+            <div class="toast-icon"><i class="fa-solid ${this.icons[type] || this.icons.info}"></i></div>
+            <div class="toast-body">
+                <div class="toast-title">${title}</div>
+                ${message ? `<div class="toast-msg">${message}</div>` : ''}
+            </div>
+            <button class="toast-close" aria-label="Cerrar notificación"><i class="fa-solid fa-xmark"></i></button>
+        `;
+        const close = () => {
+            t.classList.add('removing');
+            setTimeout(() => t.remove(), 300);
+        };
+        t.querySelector('.toast-close').addEventListener('click', close);
+        container.appendChild(t);
+        setTimeout(close, duration);
+        return t;
+    },
+    success(title, msg) { return this.show('success', title, msg); },
+    error(title, msg) { return this.show('error', title, msg, 6000); },
+    info(title, msg) { return this.show('info', title, msg); },
+    warn(title, msg) { return this.show('warn', title, msg, 5000); },
+};
+
+// ================================================================
+// MÓDULO: API CLIENT
+// ================================================================
+const Api = {
+    async get(endpoint, params = {}) {
+        const url = new URL(`${API_BASE}/${endpoint}`);
+        Object.entries(params).forEach(([k, v]) => v && url.searchParams.set(k, v));
+        const t0 = performance.now();
+        try {
+            const res = await fetch(url, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'include',
+            });
+            const latency = Math.round(performance.now() - t0);
+            document.getElementById('api-latency').textContent = `${latency}ms`;
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return await res.json();
+        } catch (err) {
+            throw err;
+        }
+    },
+
+    async post(endpoint, data) {
+        const res = await fetch(`${API_BASE}/${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'include',
+            body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        if (!res.ok) throw { status: res.status, data: json };
+        return json;
+    },
+
+    // Obtener facturas con filtros
+    async getFacturas(params = {}) {
+        return this.get('facturas/', params);
+    },
+    // Obtener clientes para el select del modal
+    async getClientes() {
+        return this.get('clientes/', { page_size: 200 });
+    },
+    // Obtener comprobantes fiscales
+    async getComprobantes() {
+        return this.get('comprobantes-fiscales/', { page_size: 50 });
+    },
+    // Crear factura
+    async crearFactura(data) {
+        return this.post('facturas/', data);
+    },
+    // Descargar PDF
+    getFacturaPdfUrl(id) {
+        return `${API_BASE}/facturas/${id}/imprimir/`;
+    },
+    // Enviar email
+    async enviarEmail(id) {
+        return this.post(`facturas/${id}/enviar-correo/`, {});
+    },
+    // Enviar WhatsApp
+    async enviarWhatsApp(id) {
+        return this.post(`facturas/${id}/enviar-whatsapp/`, {});
+    },
+};
+
+// ================================================================
+// MÓDULO: RENDER FACTURAS
+// ================================================================
+const InvoiceTable = {
+    render(facturas, count) {
+        const tbody = document.getElementById('invoices-tbody');
+        const counter = document.getElementById('table-count');
+        state.facturas = facturas;
+
+        if (!facturas || facturas.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">
+                        <i class="fa-regular fa-folder-open" style="font-size:28px;display:block;margin-bottom:8px;opacity:0.5"></i>
+                        No se encontraron facturas con los filtros aplicados.
+                    </td>
+                </tr>
+            `;
+            counter.textContent = 'Sin resultados';
+            return;
+        }
+
+        tbody.innerHTML = facturas.map(f => this.renderRow(f)).join('');
+        counter.textContent = `Mostrando ${facturas.length} de ${count || facturas.length} facturas`;
+
+        // Bind action buttons
+        tbody.querySelectorAll('[data-action]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const action = btn.dataset.action;
+                const id = btn.dataset.id;
+                const num = btn.dataset.num;
+                if (action === 'pdf') this.downloadPdf(id, num);
+                if (action === 'email') this.sendEmail(id, num);
+                if (action === 'whatsapp') this.sendWhatsApp(id, num);
+            });
+        });
+    },
+
+    renderRow(f) {
+        const statusMap = {
+            'PAGADA': { cls: 'pagada', label: 'Pagada' },
+            'PENDIENTE': { cls: 'pendiente', label: 'Pendiente' },
+            'ANULADA': { cls: 'anulada', label: 'Anulada' },
+        };
+        const st = statusMap[f.estado] || { cls: 'pendiente', label: f.estado };
+        const total = parseFloat(f.total || 0).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const isAnulada = f.estado === 'ANULADA';
+
+        return `
+        <tr data-id="${f.id}" style="animation:fadeInUp 0.3s ease both">
+            <td>
+                <div class="inv-number">${f.numero_factura}</div>
+                <div style="font-size:10.5px;color:var(--text-muted);margin-top:2px">${f.fecha_emision || ''}</div>
+            </td>
+            <td>
+                <div style="font-weight:500;color:var(--text-primary)">${f.cliente_nombre || '—'}</div>
+                <div style="font-size:11px;color:var(--text-muted)">${f.cliente_codigo || ''}</div>
+            </td>
+            <td>
+                ${f.ncf_asignado ? `<span class="dua-code">${f.ncf_asignado}</span>` : '<span style="color:var(--text-muted);font-size:12px">—</span>'}
+            </td>
+            <td>
+                <span style="font-weight:700;color:var(--text-primary)">$${total}</span>
+                <span style="font-size:10.5px;color:var(--text-muted);display:block">USD</span>
+            </td>
+            <td><span class="status-chip ${st.cls}">${st.label}</span></td>
+            <td>
+                <div class="row-actions">
+                    <button class="action-btn blue" data-action="pdf" data-id="${f.id}" data-num="${f.numero_factura}" title="Descargar PDF" aria-label="Descargar PDF de ${f.numero_factura}" ${isAnulada ? 'disabled' : ''}>
+                        <i class="fa-regular fa-file-pdf"></i>
+                    </button>
+                    <button class="action-btn green" data-action="email" data-id="${f.id}" data-num="${f.numero_factura}" title="Enviar por correo" aria-label="Enviar ${f.numero_factura} por correo" ${isAnulada ? 'disabled' : ''}>
+                        <i class="fa-regular fa-envelope"></i>
+                    </button>
+                    <button class="action-btn" data-action="whatsapp" data-id="${f.id}" data-num="${f.numero_factura}" title="Enviar por WhatsApp" aria-label="Enviar ${f.numero_factura} por WhatsApp" ${isAnulada ? 'disabled' : ''} style="color:var(--text-muted)">
+                        <i class="fa-brands fa-whatsapp" style="font-size:14px"></i>
                     </button>
                 </div>
-                
-                <form id="new-invoice-form">
-                    <div class="px-6 py-5 space-y-4">
-                        <!-- Cliente -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cliente / Importador</label>
-                            <select required class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500 bg-white">
-                                <option value="">Seleccione un cliente...</option>
-                                <option>Importadora Global S.A.</option>
-                                <option>Logística Intercontinental</option>
-                                <option>Textiles Andinos Ltda.</option>
-                                <option>Distribuidora Automotriz Sur</option>
-                            </select>
-                        </div>
-                        <!-- Expediente DUA -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Código de Expediente (DUA)</label>
-                            <input type="text" required placeholder="Ej: DUA-2026-8950" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500">
-                        </div>
-                        <!-- Valor & Divisa -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Monto Cobro</label>
-                                <div class="relative">
-                                    <input type="number" required step="0.01" placeholder="0.00" class="w-full pl-7 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500">
-                                    <span class="absolute left-3 top-2.5 text-slate-400 text-sm">$</span>
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Divisa</label>
-                                <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500 bg-white">
-                                    <option>USD - Dólar Americano</option>
-                                    <option>COP - Peso Colombiano</option>
-                                    <option>EUR - Euro</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- Concepto del Servicio -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Concepto Facturado</label>
-                            <textarea required rows="3" placeholder="Detalle de los servicios de aduana prestados..." class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500"></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-slate-50 px-6 py-4 flex flex-row-reverse gap-3 rounded-b-xl border-t border-slate-100">
-                        <button type="submit" class="inline-flex justify-center rounded-lg bg-emeraldCustom-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-emeraldCustom-700 focus:outline-none transition-colors">
-                            Crear Factura
-                        </button>
-                        <button id="cancel-invoice-btn" type="button" class="inline-flex justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none transition-colors">
-                            Cancelar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+            </td>
+        </tr>`;
+    },
 
-    <!-- MODALES INTERACTIVOS (NUEVO EXPEDIENTE) -->
-    <div id="new-file-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
-        <!-- Backdrop -->
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"></div>
-        <!-- Modal Content Container -->
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-100">
-                <div class="bg-white px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-folder-open text-electricBlue-600"></i>
-                        Apertura de Expediente DUA/BL
-                    </h3>
-                    <button id="close-file-modal-btn" class="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                </div>
-                
-                <form id="new-file-form">
-                    <div class="px-6 py-5 space-y-4">
-                        <!-- Importador / Exportador -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Importador / Exportador</label>
-                            <input type="text" required placeholder="Nombre de la empresa cliente" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500">
-                        </div>
-                        <!-- Tipo de Operacion -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Operación</label>
-                                <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500 bg-white">
-                                    <option>Importación</option>
-                                    <option>Exportación</option>
-                                    <option>Tránsito Aduanero</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Vía de Transporte</label>
-                                <select class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500 bg-white">
-                                    <option>Marítima (BL)</option>
-                                    <option>Aérea (AWB)</option>
-                                    <option>Terrestre (Carta Porte)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- Numero Documento de Transporte -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">N° Documento de Transporte (BL / AWB)</label>
-                            <input type="text" required placeholder="Ej: MSKU90823528" class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500">
-                        </div>
-                        <!-- Descripcion de Mercancia -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Descripción General de la Mercancía</label>
-                            <textarea required rows="3" placeholder="Detalle de productos, partidas arancelarias..." class="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-electricBlue-500"></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-slate-50 px-6 py-4 flex flex-row-reverse gap-3 rounded-b-xl border-t border-slate-100">
-                        <button type="submit" class="inline-flex justify-center rounded-lg bg-electricBlue-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-electricBlue-700 focus:outline-none transition-colors">
-                            Abrir Expediente
-                        </button>
-                        <button id="cancel-file-btn" type="button" class="inline-flex justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none transition-colors">
-                            Cancelar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    downloadPdf(id, num) {
+        const url = Api.getFacturaPdfUrl(id);
+        window.open(url, '_blank');
+        Toast.info('Descargando PDF', `Factura ${num} siendo generada…`);
+    },
 
-    <!-- JAVASCRIPT INTERACTIVO -->
-    <script>
-        // DOM Elements
-        const openSidebarBtn = document.getElementById('open-sidebar-btn');
-        const closeSidebarBtn = document.getElementById('close-sidebar-btn');
-        const sidebar = document.getElementById('sidebar');
-        const mobileSidebarBackdrop = document.getElementById('mobile-sidebar-backdrop');
-
-        const exchangeRateBtn = document.getElementById('exchange-rate-btn');
-        const exchangeRateDropdown = document.getElementById('exchange-rate-dropdown');
-        const calcUsd = document.getElementById('calc-usd');
-        const calcCop = document.getElementById('calc-cop');
-
-        const notificationsBtn = document.getElementById('notifications-btn');
-        const notificationsDropdown = document.getElementById('notifications-dropdown');
-
-        const userMenuBtn = document.getElementById('user-menu-btn');
-        const userMenuDropdown = document.getElementById('user-menu-dropdown');
-
-        // Modales
-        const newInvoiceBtn = document.getElementById('new-invoice-btn');
-        const newInvoiceModal = document.getElementById('new-invoice-modal');
-        const closeInvoiceModalBtn = document.getElementById('close-invoice-modal-btn');
-        const cancelInvoiceBtn = document.getElementById('cancel-invoice-btn');
-        const newInvoiceForm = document.getElementById('new-invoice-form');
-
-        const newFileBtn = document.getElementById('new-file-btn');
-        const newFileModal = document.getElementById('new-file-modal');
-        const closeFileModalBtn = document.getElementById('close-file-modal-btn');
-        const cancelFileBtn = document.getElementById('cancel-file-btn');
-        const newFileForm = document.getElementById('new-file-form');
-
-        // Sidebar Responsive Toggle
-        function openSidebar() {
-            sidebar.classList.remove('-translate-x-full');
-            mobileSidebarBackdrop.classList.remove('hidden');
+    async sendEmail(id, num) {
+        try {
+            await Api.enviarEmail(id);
+            Toast.success('Correo enviado', `Factura ${num} enviada exitosamente al cliente.`);
+        } catch (err) {
+            const msg = err?.data?.error || 'Error al enviar el correo.';
+            Toast.error('Error', msg);
         }
-        function closeSidebar() {
-            sidebar.classList.add('-translate-x-full');
-            mobileSidebarBackdrop.classList.add('hidden');
+    },
+
+    async sendWhatsApp(id, num) {
+        try {
+            const res = await Api.enviarWhatsApp(id);
+            Toast.success('WhatsApp enviado', res.message || `Notificación de ${num} encolada.`);
+        } catch (err) {
+            const msg = err?.data?.error || 'Error al enviar por WhatsApp.';
+            Toast.error('Error', msg);
         }
-        openSidebarBtn.addEventListener('click', openSidebar);
-        closeSidebarBtn.addEventListener('click', closeSidebar);
-        mobileSidebarBackdrop.addEventListener('click', closeSidebar);
+    },
+};
 
-        // Close dropdowns helper
-        window.addEventListener('click', function(e) {
-            // Exchange rate dropdown
-            if (!exchangeRateBtn.contains(e.target) && !exchangeRateDropdown.contains(e.target)) {
-                exchangeRateDropdown.classList.add('hidden');
-            }
-            // Notifications dropdown
-            if (!notificationsBtn.contains(e.target) && !notificationsDropdown.contains(e.target)) {
-                notificationsDropdown.classList.add('hidden');
-            }
-            // User menu dropdown
-            if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                userMenuDropdown.classList.add('hidden');
-            }
+// ================================================================
+// MÓDULO: CARGA DE DATOS
+// ================================================================
+const DataLoader = {
+    async loadFacturas() {
+        const params = {};
+        if (state.filtroEstado) params.estado = state.filtroEstado;
+        if (state.searchQuery) params.search = state.searchQuery;
+
+        try {
+            const data = await Api.getFacturas(params);
+            const facturas = data.results || data;
+            const count = data.count || facturas.length;
+            InvoiceTable.render(facturas, count);
+
+            // Actualizar badge pendientes
+            const pendientes = facturas.filter(f => f.estado === 'PENDIENTE');
+            document.getElementById('kpi-val-pendientes').textContent = pendientes.length;
+            document.getElementById('badge-pendientes').textContent = pendientes.length;
+
+            // Update API status
+            document.getElementById('api-status-badge').innerHTML = `
+                <span class="ping" aria-hidden="true"></span>
+                API: Conectado
+            `;
+        } catch (err) {
+            console.warn('API no disponible, mostrando datos de demostración.', err);
+            document.getElementById('api-status-badge').innerHTML = `
+                <span style="width:7px;height:7px;border-radius:50%;background:var(--amber-500);flex-shrink:0"></span>
+                API: Offline (Demo)
+            `;
+            document.getElementById('api-status-badge').style.background = 'var(--amber-50)';
+            document.getElementById('api-status-badge').style.color = 'var(--amber-600)';
+            document.getElementById('api-status-badge').style.borderColor = 'var(--amber-100)';
+            this.loadDemoData();
+        }
+    },
+
+    loadDemoData() {
+        // Datos de demostración cuando la API no está disponible
+        const demo = [
+            { id: 482, numero_factura: 'FAC-2026-0482', cliente_nombre: 'Importadora Global S.A.', cliente_codigo: 'CLI-0001', ncf_asignado: 'B0100000001', total: '4250.00', estado: 'PAGADA', fecha_emision: '27/07/2026 10:30' },
+            { id: 481, numero_factura: 'FAC-2026-0481', cliente_nombre: 'Logística Intercontinental', cliente_codigo: 'CLI-0002', ncf_asignado: 'B0100000002', total: '8740.00', estado: 'PENDIENTE', fecha_emision: '26/07/2026 14:15' },
+            { id: 480, numero_factura: 'FAC-2026-0480', cliente_nombre: 'Textiles Andinos Ltda.', cliente_codigo: 'CLI-0003', ncf_asignado: null, total: '1920.00', estado: 'PAGADA', fecha_emision: '25/07/2026 09:00' },
+            { id: 479, numero_factura: 'FAC-2026-0479', cliente_nombre: 'Distribuidora Automotriz Sur', cliente_codigo: 'CLI-0004', ncf_asignado: 'B0100000003', total: '12350.00', estado: 'ANULADA', fecha_emision: '24/07/2026 16:45' },
+        ];
+        InvoiceTable.render(demo, demo.length);
+        document.getElementById('kpi-val-pendientes').textContent = '1';
+        document.getElementById('badge-pendientes').textContent = '1';
+    },
+
+    async loadFormData() {
+        // Cargar clientes para el select del modal
+        try {
+            const data = await Api.getClientes();
+            const clientes = data.results || data;
+            state.clientes = clientes;
+            const sel = document.getElementById('inv-cliente');
+            sel.innerHTML = '<option value="">Seleccione un cliente…</option>' +
+                clientes.map(c => `<option value="${c.id}">${c.codigo_cliente} — ${c.nombre}</option>`).join('');
+        } catch {
+            document.getElementById('inv-cliente').innerHTML = '<option value="">— Error cargando clientes —</option>';
+        }
+
+        // Cargar comprobantes fiscales
+        try {
+            const data = await Api.getComprobantes();
+            const comps = data.results || data;
+            state.comprobantes = comps;
+            const sel = document.getElementById('inv-comprobante');
+            sel.innerHTML = '<option value="">Sin comprobante fiscal</option>' +
+                comps.map(c => `<option value="${c.id}">${c.nombre} (${c.prefijo}) — ${c.secuencias_disponibles} disp.</option>`).join('');
+        } catch {
+            // silencioso — es opcional
+        }
+    },
+};
+
+// ================================================================
+// MÓDULO: MODAL FACTURA
+// ================================================================
+const InvoiceModal = {
+    lineCount: 0,
+
+    open() {
+        this.lineCount = 0;
+        document.getElementById('detail-lines-wrap').innerHTML = '';
+        document.getElementById('total-preview-val').textContent = '$0.00 USD';
+        document.getElementById('invoice-form').reset();
+        this.addLine(); // Agregar la primera línea automáticamente
+        Modal.show('modal-invoice');
+        DataLoader.loadFormData();
+    },
+
+    close() {
+        Modal.hide('modal-invoice');
+    },
+
+    addLine() {
+        this.lineCount++;
+        const id = this.lineCount;
+        const wrap = document.getElementById('detail-lines-wrap');
+        const div = document.createElement('div');
+        div.className = 'detail-line';
+        div.dataset.lineId = id;
+        div.innerHTML = `
+            <input type="text" class="form-control detail-concepto" placeholder="Concepto del servicio…" required aria-label="Concepto línea ${id}">
+            <input type="number" class="form-control detail-cantidad" placeholder="Cant." step="0.01" min="0" value="1" aria-label="Cantidad línea ${id}">
+            <input type="number" class="form-control detail-precio detail-price" placeholder="Precio USD" step="0.01" min="0" aria-label="Precio línea ${id}">
+            <button type="button" class="remove-detail" aria-label="Eliminar línea ${id}" ${id === 1 ? 'disabled style="opacity:0.3"' : ''}>
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+        `;
+        div.querySelector('.remove-detail').addEventListener('click', () => {
+            div.remove();
+            this.updateTotal();
         });
+        div.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => this.updateTotal()));
+        wrap.appendChild(div);
+        this.updateTotal();
+    },
 
-        // Exchange Rate Dropdown Toggle
-        exchangeRateBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            exchangeRateDropdown.classList.toggle('hidden');
-            notificationsDropdown.classList.add('hidden');
-            userMenuDropdown.classList.add('hidden');
+    updateTotal() {
+        let total = 0;
+        document.querySelectorAll('.detail-line').forEach(line => {
+            const qty = parseFloat(line.querySelector('.detail-cantidad')?.value || 0);
+            const price = parseFloat(line.querySelector('.detail-precio')?.value || 0);
+            if (!isNaN(qty) && !isNaN(price)) total += qty * price;
         });
+        document.getElementById('total-preview-val').textContent =
+            '$' + total.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
+    },
 
-        // Exchange Rate Quick Calculator (TRM = 4120.50)
-        const exchangeRateVal = 4120.50;
-        calcUsd.addEventListener('input', function() {
-            const usdVal = parseFloat(calcUsd.value);
-            if (isNaN(usdVal) || usdVal < 0) {
-                calcCop.value = '';
+    async submit(e) {
+        e.preventDefault();
+        const form = document.getElementById('invoice-form');
+        const clienteId = document.getElementById('inv-cliente').value;
+        const comprobanteId = document.getElementById('inv-comprobante').value;
+        const tasaCambio = document.getElementById('inv-tasa').value;
+
+        if (!clienteId) {
+            document.getElementById('inv-cliente').classList.add('has-error');
+            Toast.warn('Campo requerido', 'Selecciona un cliente para continuar.');
+            return;
+        }
+        document.getElementById('inv-cliente').classList.remove('has-error');
+
+        const detalles = [];
+        let valid = true;
+        document.querySelectorAll('.detail-line').forEach(line => {
+            const concepto = line.querySelector('.detail-concepto').value.trim();
+            const cantidad = parseFloat(line.querySelector('.detail-cantidad').value);
+            const precio = parseFloat(line.querySelector('.detail-precio').value);
+            if (!concepto || isNaN(cantidad) || isNaN(precio) || cantidad <= 0 || precio < 0) {
+                valid = false;
             } else {
-                const converted = usdVal * exchangeRateVal;
-                calcCop.value = '$ ' + converted.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' COP';
+                detalles.push({ concepto, cantidad, precio_unitario: precio });
             }
         });
 
-        // Notifications Toggle
-        notificationsBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            notificationsDropdown.classList.toggle('hidden');
-            exchangeRateDropdown.classList.add('hidden');
-            userMenuDropdown.classList.add('hidden');
-        });
-
-        // User Menu Toggle
-        userMenuBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            userMenuDropdown.classList.toggle('hidden');
-            exchangeRateDropdown.classList.add('hidden');
-            notificationsDropdown.classList.add('hidden');
-        });
-
-        // MODAL NUEVA FACTURA
-        newInvoiceBtn.addEventListener('click', () => {
-            newInvoiceModal.classList.remove('hidden');
-        });
-        function hideInvoiceModal() {
-            newInvoiceModal.classList.add('hidden');
-            newInvoiceForm.reset();
+        if (!valid || detalles.length === 0) {
+            Toast.warn('Líneas incompletas', 'Completa todos los campos de las líneas de servicio.');
+            return;
         }
-        closeInvoiceModalBtn.addEventListener('click', hideInvoiceModal);
-        cancelInvoiceBtn.addEventListener('click', hideInvoiceModal);
-        newInvoiceForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('¡Factura guardada exitosamente (Simulación)!');
-            hideInvoiceModal();
+
+        const submitBtn = document.getElementById('submit-invoice');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando…';
+
+        try {
+            const payload = {
+                cliente: parseInt(clienteId),
+                tasa_cambio: parseFloat(tasaCambio),
+                detalles,
+            };
+            if (comprobanteId) payload.comprobante_fiscal = parseInt(comprobanteId);
+
+            const factura = await Api.crearFactura(payload);
+            this.close();
+            Toast.success('¡Factura creada!', `${factura.numero_factura} generada y asignada ${factura.ncf_asignado ? '— NCF: ' + factura.ncf_asignado : ''}.`);
+            await DataLoader.loadFacturas();
+        } catch (err) {
+            const errMsg = err?.data ? JSON.stringify(err.data).replace(/[{}'"]/g, '') : 'Error al crear la factura.';
+            Toast.error('Error al crear factura', errMsg.substring(0, 120));
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Crear Factura';
+        }
+    }
+};
+
+// ================================================================
+// MÓDULO: MODALES (GENÉRICO)
+// ================================================================
+const Modal = {
+    show(id) {
+        const el = document.getElementById(id);
+        el.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => el.querySelector('[autofocus], .form-control, select')?.focus(), 100);
+    },
+    hide(id) {
+        document.getElementById(id).classList.add('hidden');
+        document.body.style.overflow = '';
+    },
+};
+
+// ================================================================
+// MÓDULO: SIDEBAR RESPONSIVE
+// ================================================================
+const Sidebar = {
+    init() {
+        const isMobile = () => window.innerWidth < 769;
+        const sidebar = document.getElementById('sidebar');
+        const openBtn = document.getElementById('open-sidebar-btn');
+        const closeBtn = document.getElementById('close-sidebar-btn');
+        const backdrop = document.getElementById('mobile-backdrop');
+
+        const showMobileControls = () => {
+            if (isMobile()) {
+                openBtn.style.display = '';
+                closeBtn.style.display = '';
+                sidebar.classList.add('sidebar-mobile-hidden');
+            } else {
+                openBtn.style.display = 'none';
+                closeBtn.style.display = 'none';
+                sidebar.classList.remove('sidebar-mobile-hidden');
+                backdrop.classList.remove('visible');
+            }
+        };
+
+        showMobileControls();
+        window.addEventListener('resize', showMobileControls);
+
+        openBtn.addEventListener('click', () => {
+            sidebar.classList.remove('sidebar-mobile-hidden');
+            backdrop.classList.add('visible');
+        });
+        const closeSidebar = () => {
+            sidebar.classList.add('sidebar-mobile-hidden');
+            backdrop.classList.remove('visible');
+        };
+        closeBtn.addEventListener('click', closeSidebar);
+        backdrop.addEventListener('click', closeSidebar);
+    }
+};
+
+// ================================================================
+// MÓDULO: DROPDOWN MENUS
+// ================================================================
+const Dropdowns = {
+    items: [
+        { btn: 'trm-btn', drop: 'trm-dropdown' },
+        { btn: 'notif-btn', drop: 'notif-dropdown' },
+        { btn: 'user-menu-btn', drop: 'user-dropdown' },
+    ],
+
+    init() {
+        this.items.forEach(({ btn, drop }) => {
+            const b = document.getElementById(btn);
+            const d = document.getElementById(drop);
+            if (!b || !d) return;
+
+            b.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = d.classList.contains('hidden');
+                this.closeAll();
+                if (isHidden) {
+                    d.classList.remove('hidden');
+                    b.setAttribute('aria-expanded', 'true');
+                }
+            });
         });
 
-        // MODAL NUEVO EXPEDIENTE
-        newFileBtn.addEventListener('click', () => {
-            newFileModal.classList.remove('hidden');
+        document.addEventListener('click', () => this.closeAll());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') this.closeAll();
         });
-        function hideFileModal() {
-            newFileModal.classList.add('hidden');
-            newFileForm.reset();
+    },
+
+    closeAll() {
+        this.items.forEach(({ btn, drop }) => {
+            document.getElementById(drop)?.classList.add('hidden');
+            document.getElementById(btn)?.setAttribute('aria-expanded', 'false');
+        });
+    }
+};
+
+// ================================================================
+// MÓDULO: TRM CALCULATOR
+// ================================================================
+const TrmCalc = {
+    init() {
+        document.getElementById('calc-usd').addEventListener('input', function () {
+            const val = parseFloat(this.value);
+            const out = document.getElementById('calc-cop');
+            if (!isNaN(val) && val >= 0) {
+                out.value = '$ ' + (val * TRM).toLocaleString('es-CO', { minimumFractionDigits: 2 }) + ' COP';
+            } else {
+                out.value = '';
+            }
+        });
+    }
+};
+
+// ================================================================
+// MÓDULO: SEARCH DEBOUNCE
+// ================================================================
+const Search = {
+    timeout: null,
+    init() {
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            clearTimeout(this.timeout);
+            this.timeout = setTimeout(() => {
+                state.searchQuery = e.target.value.trim();
+                DataLoader.loadFacturas();
+            }, 400);
+        });
+
+        document.getElementById('status-filter').addEventListener('change', (e) => {
+            state.filtroEstado = e.target.value;
+            DataLoader.loadFacturas();
+        });
+    }
+};
+
+// ================================================================
+// MÓDULO: ANIMACIONES DE ENTRADA
+// ================================================================
+const Animations = {
+    init() {
+        // Progress bars animate on load
+        setTimeout(() => {
+            document.querySelectorAll('.kpi-progress-fill[data-target]').forEach(el => {
+                el.style.width = el.dataset.target + '%';
+            });
+        }, 600);
+    }
+};
+
+// ================================================================
+// MÓDULO: ACCIONES EXTRA (NAVEGACIÓN Y BOTONES PLACEHOLDER)
+// ================================================================
+const ExtraActions = {
+    init() {
+        // 1. Sidebar Nav Links
+        document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (link.target === '_blank') return;
+                e.preventDefault();
+                document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                if (link.id !== 'nav-dashboard') {
+                    Toast.info('Módulo en Desarrollo', 'Esta sección estará disponible en la próxima actualización.');
+                }
+            });
+        });
+
+        // 2. Notificaciones Dropdown
+        const markReadBtn = document.querySelector('.notif-dropdown .dropdown-header span');
+        if (markReadBtn) {
+            markReadBtn.addEventListener('click', () => {
+                document.querySelector('.notif-dot').style.display = 'none';
+                document.querySelector('.notif-list').innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px;">No tienes notificaciones nuevas.</div>';
+                Toast.success('Notificaciones', 'Todas las notificaciones han sido marcadas como leídas.');
+            });
         }
-        closeFileModalBtn.addEventListener('click', hideFileModal);
-        cancelFileBtn.addEventListener('click', hideFileModal);
-        newFileForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('¡Expediente de aduana DUA registrado con éxito (Simulación)!');
-            hideFileModal();
+        const viewAllNotifs = document.querySelector('.notif-footer');
+        if (viewAllNotifs) {
+            viewAllNotifs.addEventListener('click', () => {
+                Dropdowns.closeAll();
+                Toast.info('Centro de Notificaciones', 'Abriendo el historial de notificaciones...');
+            });
+        }
+        document.querySelectorAll('.notif-item').forEach(item => {
+             item.addEventListener('click', () => {
+                  Dropdowns.closeAll();
+                  Toast.info('Notificación', 'Abriendo detalles...');
+             });
         });
-    </script>
+
+        // 3. Menú de Usuario (Dropdown & Sidebar Footer)
+        document.querySelectorAll('#user-dropdown .dropdown-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                Dropdowns.closeAll();
+                if (item.classList.contains('danger')) {
+                    Toast.info('Cerrando Sesión', 'Desconectando del sistema...');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    Toast.info('Módulo en Desarrollo', 'Esta vista de configuración estará disponible pronto.');
+                }
+            });
+        });
+        const userLogoutBtn = document.querySelector('.user-logout');
+        if (userLogoutBtn) {
+             userLogoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                Toast.info('Cerrando Sesión', 'Desconectando del sistema...');
+                setTimeout(() => window.location.reload(), 1500);
+            });
+        }
+
+        // 4. KPI Cards — Filtros y Redirecciones
+        const kpiPendientes = document.getElementById('kpi-pendientes');
+        if (kpiPendientes) {
+            kpiPendientes.addEventListener('click', () => {
+                const select = document.getElementById('status-filter');
+                select.value = 'PENDIENTE';
+                state.filtroEstado = 'PENDIENTE';
+                DataLoader.loadFacturas();
+                Toast.info('Filtro Aplicado', 'Mostrando únicamente las facturas pendientes.');
+            });
+        }
+        document.querySelectorAll('.kpi-card:not(#kpi-pendientes)').forEach(card => {
+             card.addEventListener('click', () => {
+                  Toast.info('Métrica Detallada', 'Esta tarjeta te redirigirá a su reporte exhaustivo próximamente.');
+             });
+        });
+
+        // 5. Tabla — Ver Historial
+        const viewAllLink = document.getElementById('view-all-link');
+        if (viewAllLink) {
+            viewAllLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                Toast.info('Historial Completo', 'Cargando registros anteriores de facturación...');
+            });
+        }
+    }
+};
+
+// ================================================================
+// INICIALIZACIÓN PRINCIPAL
+// ================================================================
+document.addEventListener('DOMContentLoaded', async () => {
+    // Init modules
+    DarkMode.init();
+    Sidebar.init();
+    Dropdowns.init();
+    TrmCalc.init();
+    Search.init();
+    Animations.init();
+    ExtraActions.init();
+
+    // ── MODAL FACTURA ────────────────────────────────────────
+    document.getElementById('btn-new-invoice').addEventListener('click', () => InvoiceModal.open());
+    document.getElementById('qa-new-invoice').addEventListener('click', () => InvoiceModal.open());
+    document.getElementById('close-modal-invoice').addEventListener('click', () => InvoiceModal.close());
+    document.getElementById('cancel-invoice').addEventListener('click', () => InvoiceModal.close());
+    document.getElementById('add-detail-btn').addEventListener('click', () => InvoiceModal.addLine());
+    document.getElementById('invoice-form').addEventListener('submit', (e) => InvoiceModal.submit(e));
+    document.getElementById('modal-invoice').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) InvoiceModal.close();
+    });
+
+    // ── MODAL EXPEDIENTE ──────────────────────────────────────
+    document.getElementById('qa-new-file').addEventListener('click', () => Modal.show('modal-expediente'));
+    document.getElementById('close-modal-exp').addEventListener('click', () => Modal.hide('modal-expediente'));
+    document.getElementById('cancel-exp').addEventListener('click', () => Modal.hide('modal-expediente'));
+    document.getElementById('modal-expediente').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) Modal.hide('modal-expediente');
+    });
+    document.getElementById('exp-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        Modal.hide('modal-expediente');
+        Toast.success('Expediente registrado', 'El expediente DUA/BL ha sido abierto exitosamente (simulación).');
+    });
+
+    // ── REFRESH BUTTON ────────────────────────────────────────
+    document.getElementById('refresh-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('refresh-btn');
+        btn.innerHTML = '<i class="fa-solid fa-rotate-right fa-spin"></i> Actualizando…';
+        btn.disabled = true;
+        await DataLoader.loadFacturas();
+        btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Actualizar';
+        btn.disabled = false;
+        Toast.info('Datos actualizados', 'El panel se ha sincronizado correctamente.');
+    });
+
+    // ── CARGAR DATOS INICIALES ────────────────────────────────
+    await DataLoader.loadFacturas();
+});
+</script>
+
 </body>
 </html>
